@@ -8,7 +8,6 @@ import androidx.wear.compose.navigation.rememberSwipeDismissableNavHostState
 import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ResponsiveTimeText
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
-import com.talhaak.apps.simpleprayer.presentation.ui.LocationSettingsRedirectDialog
 import com.talhaak.apps.simpleprayer.presentation.ui.PrayerListScreen
 
 @Composable
