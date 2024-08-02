@@ -1,17 +1,13 @@
 package com.talhaak.apps.simpleprayer.presentation
 
-import java.time.Instant
+import com.batoulapps.adhan2.Prayer
+import com.talhaak.apps.simpleprayer.R
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-
-enum class Prayer {
-    FAJR,
-    SUNRISE,
-    DHUHR,
-    ASR,
-    MAGHRIB,
-    ISHA
-}
 
 data class PrayerDay(
     val date: Instant,
@@ -30,8 +26,21 @@ data class PrayerDay(
             Prayer.ASR -> asr
             Prayer.MAGHRIB -> maghrib
             Prayer.ISHA -> isha
+            else -> return ""
         }
         val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-        return formatter.format(time)
+        return time.toLocalDateTime(TimeZone.currentSystemDefault()).time.toJavaLocalTime()
+            .format(formatter)
     }
 }
+
+val Prayer.label: Int
+    get() = when (this) {
+        Prayer.FAJR -> R.string.fajr
+        Prayer.SUNRISE -> R.string.sunrise
+        Prayer.DHUHR -> R.string.dhuhr
+        Prayer.ASR -> R.string.asr
+        Prayer.MAGHRIB -> R.string.maghrib
+        Prayer.ISHA -> R.string.isha
+        else -> throw IllegalArgumentException("Getting label of invalid prayer: $this")
+    }
