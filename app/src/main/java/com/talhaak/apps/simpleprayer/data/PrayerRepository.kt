@@ -12,6 +12,11 @@ object PrayerRepository {
         val coordinates = Coordinates(51.51388889, 0.05027778)
         val params =
             CalculationMethod.MOON_SIGHTING_COMMITTEE.parameters.copy(madhab = Madhab.HANAFI)
-        return PrayerTimes(coordinates, DateComponents.from(date), params)
+
+        return PrayerTimes(
+            coordinates,
+            DateComponents.from(date),
+            params
+        )
     }
 }
