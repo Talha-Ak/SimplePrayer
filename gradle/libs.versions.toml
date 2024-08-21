@@ -12,6 +12,7 @@ composeToolingPreview = "1.6.8"
 accompanistPermissions = "0.35.1-alpha"
 materialIconsCore = "1.6.8"
 adhan2 = "0.0.5"
+datastorePreferences = "1.1.1"
 
 [libraries]
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
@@ -34,6 +35,7 @@ compose-navigation = { group = "androidx.wear.compose", name = "compose-navigati
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistPermissions" }
 material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "materialIconsCore" }
 adhan2 = { group = "com.batoulapps.adhan", name = "adhan2", version.ref = "adhan2" }
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

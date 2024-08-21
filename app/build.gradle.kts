@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.accompanist.permissions)
     implementation(libs.material.icons.core)
     implementation(libs.adhan2)
+    implementation(libs.datastore.preferences)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)

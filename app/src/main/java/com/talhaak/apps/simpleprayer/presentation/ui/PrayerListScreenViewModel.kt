@@ -2,10 +2,15 @@ package com.talhaak.apps.simpleprayer.presentation.ui
 
 import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.talhaak.apps.simpleprayer.MyApplication
+import com.talhaak.apps.simpleprayer.data.Prayer
+import com.talhaak.apps.simpleprayer.data.PrayerDay
 import com.talhaak.apps.simpleprayer.data.PrayerRepository
-import com.talhaak.apps.simpleprayer.presentation.Prayer
-import com.talhaak.apps.simpleprayer.presentation.PrayerDay
-import com.talhaak.apps.simpleprayer.presentation.toAppPrayer
+import com.talhaak.apps.simpleprayer.data.toAppPrayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -13,7 +18,9 @@ import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
-class PrayerListScreenViewModel : ViewModel() {
+class PrayerListScreenViewModel(
+    private val prayerRepository: PrayerRepository
+) : ViewModel() {
     private var timer: CountDownTimer
     private val _uiState: MutableStateFlow<PrayerListScreenState> =
         MutableStateFlow(PrayerListScreenState.NoCachedLocation)
@@ -21,8 +28,8 @@ class PrayerListScreenViewModel : ViewModel() {
 
     init {
         val now = Clock.System.now()
-        val times = PrayerRepository.calculatePrayers(now)
-        val timesTomorrow = PrayerRepository.calculatePrayers(now + 1.days)
+        val times = prayerRepository.calculatePrayers(now)
+        val timesTomorrow = prayerRepository.calculatePrayers(now + 1.days)
 
         val nextPrayer = times.timeForPrayer(times.nextPrayer(now)) ?: timesTomorrow.fajr
 
@@ -57,6 +64,12 @@ class PrayerListScreenViewModel : ViewModel() {
     companion object {
         const val SECS_IN_MIN = 60L
         const val MSECS_IN_SEC = 1000L
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val prayerRepository = (this[APPLICATION_KEY] as MyApplication).prayerRepository
+                PrayerListScreenViewModel(prayerRepository)
+            }
+        }
     }
 }
 

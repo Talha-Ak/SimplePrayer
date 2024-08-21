@@ -52,8 +52,8 @@ import com.google.android.horologist.compose.material.Icon
 import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import com.google.android.horologist.images.base.paintable.ImageVectorPaintable.Companion.asPaintable
-import com.talhaak.apps.simpleprayer.presentation.Prayer
-import com.talhaak.apps.simpleprayer.presentation.PrayerDay
+import com.talhaak.apps.simpleprayer.data.Prayer
+import com.talhaak.apps.simpleprayer.data.PrayerDay
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.seconds
@@ -61,7 +61,7 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PrayerListScreen(
-    prayerListViewModel: PrayerListScreenViewModel = viewModel(),
+    prayerListViewModel: PrayerListScreenViewModel = viewModel(factory = PrayerListScreenViewModel.Factory),
 ) {
     val uiState by prayerListViewModel.uiState.collectAsStateWithLifecycle()
 
