@@ -1,4 +1,4 @@
-package com.talhaak.apps.simpleprayer.presentation
+package com.talhaak.apps.simpleprayer.data
 
 import com.talhaak.apps.simpleprayer.R
 import kotlinx.datetime.Instant
