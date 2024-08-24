@@ -13,6 +13,8 @@ accompanistPermissions = "0.35.1-alpha"
 materialIconsCore = "1.6.8"
 adhan2 = "0.0.5"
 datastorePreferences = "1.1.1"
+playServicesLocation = "21.3.0"
+kotlinxCoroutinesPlayServices = "1.9.0-RC.2"
 
 [libraries]
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
@@ -36,6 +38,8 @@ accompanist-permissions = { group = "com.google.accompanist", name = "accompanis
 material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "materialIconsCore" }
 adhan2 = { group = "com.batoulapps.adhan", name = "adhan2", version.ref = "adhan2" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.material.icons.core)
     implementation(libs.adhan2)
     implementation(libs.datastore.preferences)
+    implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)

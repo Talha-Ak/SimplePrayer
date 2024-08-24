@@ -2,7 +2,10 @@ package com.talhaak.apps.simpleprayer
 
 import android.app.Application
 import android.content.Context
+import android.location.Geocoder
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.android.gms.location.LocationServices
+import com.talhaak.apps.simpleprayer.data.LocationRemoteDataSource
 import com.talhaak.apps.simpleprayer.data.PrayerRepository
 
 private const val APP_PREFERENCES_NAME = "app_preferences"
@@ -16,6 +19,8 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        prayerRepository = PrayerRepository(datastore)
+        val locationClient = LocationServices.getFusedLocationProviderClient(this)
+        val dataSource = LocationRemoteDataSource(locationClient, Geocoder(this))
+        prayerRepository = PrayerRepository(datastore, dataSource)
     }
 }
