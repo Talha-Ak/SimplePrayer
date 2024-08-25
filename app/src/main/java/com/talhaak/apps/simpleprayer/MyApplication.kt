@@ -20,7 +20,8 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         val locationClient = LocationServices.getFusedLocationProviderClient(this)
-        val dataSource = LocationRemoteDataSource(locationClient, Geocoder(this))
+        val geocoder = if (Geocoder.isPresent()) Geocoder(this) else null
+        val dataSource = LocationRemoteDataSource(locationClient, geocoder)
         prayerRepository = PrayerRepository(datastore, dataSource)
     }
 }

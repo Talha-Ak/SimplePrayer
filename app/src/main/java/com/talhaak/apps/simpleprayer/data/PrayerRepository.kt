@@ -17,8 +17,11 @@ import com.batoulapps.adhan2.data.DateComponents
 import com.google.android.gms.tasks.CancellationToken
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlin.time.Duration.Companion.minutes
 
 class PrayerRepository(
     private val locationLocalDataSource: DataStore<Preferences>,
@@ -40,11 +43,16 @@ class PrayerRepository(
                 throw exception
             }
         }.map { preferences ->
+            val deviceCoords = preferences[LOCATION_LATITUDE]?.let { lat ->
+                preferences[LOCATION_LONGITUDE]?.let { long ->
+                    DeviceCoordinates(lat, long)
+                }
+            }
+
             DeviceLocation(
-                preferences[LOCATION_LATITUDE]!!,
-                preferences[LOCATION_LONGITUDE]!!,
+                deviceCoords,
                 preferences[LOCATION_AREA].orEmpty(),
-                Instant.fromEpochMilliseconds(preferences[LAST_UPDATED]!!)
+                preferences[LAST_UPDATED]?.let { Instant.fromEpochMilliseconds(it) }
             )
         }
 
@@ -52,12 +60,18 @@ class PrayerRepository(
         cancellationToken: CancellationToken,
         onCompletion: (Boolean) -> Unit
     ) {
-        // set flow to updating location
+        if (locationIsFresh()) {
+            onCompletion(true)
+            return
+        }
+
         val result = locationRemoteDataSource.getLocation(cancellationToken)
         if (result != null) {
+            val area = locationRemoteDataSource.getArea(result)
             locationLocalDataSource.edit {
                 it[LOCATION_LATITUDE] = result.latitude
                 it[LOCATION_LONGITUDE] = result.longitude
+                it[LOCATION_AREA] = area
                 it[LAST_UPDATED] = result.time
             }
             onCompletion(true)
@@ -77,5 +91,16 @@ class PrayerRepository(
             params
         )
     }
+
+    private suspend fun locationIsFresh(): Boolean {
+        val locationData = locationLocalDataSource.data.firstOrNull()
+
+        val hasLocationData = locationData?.get(LOCATION_LATITUDE) != null
+        val isRecentUpdate = locationData?.get(LAST_UPDATED)?.let {
+            Clock.System.now() < Instant.fromEpochMilliseconds(it) + 10.minutes
+        } ?: false
+        return hasLocationData && isRecentUpdate
+    }
 }
+
 

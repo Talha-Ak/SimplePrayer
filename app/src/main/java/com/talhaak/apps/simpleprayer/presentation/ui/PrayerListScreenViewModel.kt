@@ -1,19 +1,25 @@
 package com.talhaak.apps.simpleprayer.presentation.ui
 
-import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.talhaak.apps.simpleprayer.MyApplication
+import com.talhaak.apps.simpleprayer.data.DeviceLocation
 import com.talhaak.apps.simpleprayer.data.Prayer
 import com.talhaak.apps.simpleprayer.data.PrayerDay
 import com.talhaak.apps.simpleprayer.data.PrayerRepository
 import com.talhaak.apps.simpleprayer.data.toAppPrayer
+import com.talhaak.apps.simpleprayer.data.toAppPrayerDay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -21,49 +27,65 @@ import kotlin.time.Duration.Companion.minutes
 class PrayerListScreenViewModel(
     private val prayerRepository: PrayerRepository
 ) : ViewModel() {
-    private var timer: CountDownTimer
-    private val _uiState: MutableStateFlow<PrayerListScreenState> =
-        MutableStateFlow(PrayerListScreenState.NoCachedLocation)
-    val uiState = _uiState.asStateFlow()
+    val locationCancelSource = CancellationTokenSource()
+    val isLoadingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    val uiState: StateFlow<PrayerListScreenState> = combine(
+        isLoadingState,
+        prayerRepository.lastLocationFlow,
+        ::combinedStateFlows
+    ).stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        PrayerListScreenState.UpdatingLocation(null)
+    )
 
     init {
+        updateLocation()
+    }
+
+    fun updateLocation() {
+        viewModelScope.launch {
+            isLoadingState.value = true
+            prayerRepository.updateLocation(locationCancelSource.token) {
+                isLoadingState.value = false
+            }
+        }
+    }
+
+    private fun combinedStateFlows(
+        isLoading: Boolean,
+        location: DeviceLocation
+    ): PrayerListScreenState = when {
+        isLoading -> PrayerListScreenState.UpdatingLocation(location.coords?.let {
+            getScreenStateFrom(location)
+        })
+
+        location.lastUpdated == null -> PrayerListScreenState.NoLocation
+        location.coords == null -> PrayerListScreenState.FailedLocation
+        else -> PrayerListScreenState.FoundLocation(getScreenStateFrom(location))
+    }
+
+    private fun getScreenStateFrom(location: DeviceLocation): PrayerListScreenState.ScreenState {
         val now = Clock.System.now()
         val times = prayerRepository.calculatePrayers(now)
         val timesTomorrow = prayerRepository.calculatePrayers(now + 1.days)
-
         val nextPrayer = times.timeForPrayer(times.nextPrayer(now)) ?: timesTomorrow.fajr
 
-        timer = object :
-            CountDownTimer(nextPrayer.minus(now).inWholeMilliseconds, MSECS_IN_SEC * SECS_IN_MIN) {
-            override fun onTick(millisUntilFinished: Long) = update()
-            override fun onFinish() = update()
+        return PrayerListScreenState.ScreenState(
+            location = location.area,
+            currentPrayer = times.currentPrayer(now).toAppPrayer(),
+            currentPrayerMinutesLeft = nextPrayer.minus(now).inWholeMinutes.minutes.toString(),
+            prayers = times.toAppPrayerDay()
+        )
+    }
 
-            fun update() {
-                val now = Clock.System.now()
-                val nextPrayer = times.timeForPrayer(times.nextPrayer(now)) ?: timesTomorrow.fajr
-                _uiState.update {
-                    PrayerListScreenState.Success(
-                        location = "Shadwell",
-                        currentPrayer = times.currentPrayer(now).toAppPrayer(),
-                        // why is there no Duration.truncate()?
-                        currentPrayerMinutesLeft = nextPrayer.minus(now).inWholeMinutes.minutes.toString(),
-                        prayers = PrayerDay(
-                            fajr = times.fajr,
-                            sunrise = times.sunrise,
-                            dhuhr = times.dhuhr,
-                            asr = times.asr,
-                            maghrib = times.maghrib,
-                            isha = times.isha
-                        )
-                    )
-                }
-            }
-        }.start()
+    override fun onCleared() {
+        super.onCleared()
+        locationCancelSource.cancel()
     }
 
     companion object {
-        const val SECS_IN_MIN = 60L
-        const val MSECS_IN_SEC = 1000L
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val prayerRepository = (this[APPLICATION_KEY] as MyApplication).prayerRepository
@@ -74,12 +96,15 @@ class PrayerListScreenViewModel(
 }
 
 sealed interface PrayerListScreenState {
-    data object NoCachedLocation : PrayerListScreenState
-    data object CachedLocation : PrayerListScreenState
-    data class Success(
+    data class ScreenState(
         val location: String,
         val currentPrayer: Prayer,
         val currentPrayerMinutesLeft: String,
         val prayers: PrayerDay
-    ) : PrayerListScreenState
+    )
+
+    data object NoLocation : PrayerListScreenState
+    data class UpdatingLocation(val state: ScreenState?) : PrayerListScreenState
+    data object FailedLocation : PrayerListScreenState
+    data class FoundLocation(val state: ScreenState) : PrayerListScreenState
 }

@@ -1,6 +1,6 @@
 package com.talhaak.apps.simpleprayer.presentation.ui
 
-import android.Manifest
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +15,6 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,14 +28,13 @@ import androidx.wear.compose.material.CardDefaults
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.PlaceholderState
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.placeholder
 import androidx.wear.compose.material.placeholderShimmer
 import androidx.wear.compose.material.rememberPlaceholderState
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults.listTextPadding
@@ -64,27 +60,15 @@ fun PrayerListScreen(
     prayerListViewModel: PrayerListScreenViewModel = viewModel(factory = PrayerListScreenViewModel.Factory),
 ) {
     val uiState by prayerListViewModel.uiState.collectAsStateWithLifecycle()
-
-    var permissionAttempted by rememberSaveable { mutableStateOf(false) }
-    val locationPermissionState = rememberPermissionState(
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    ) { permissionAttempted = true }
-
-    if (locationPermissionState.status.isGranted) {
-        PrayerListScreen(uiState)
-    } else {
-        PermissionRequestScreen(
-            permissionState = locationPermissionState,
-            permissionAttempted = permissionAttempted,
-            message = "To calculate prayer times, location permission is needed.",
-            rationale = "You need to grant location permission to use this app",
-            chipLabel = "Allow location"
+    Log.d("PrayerListScreen", "uiState: $uiState")
+    PrayerListScreen(
+        uiState = uiState,
+        onUpdateLocation = { prayerListViewModel.updateLocation() }
         )
-    }
 }
 
 @Composable
-fun PrayerListScreen(uiState: PrayerListScreenState) {
+fun PrayerListScreen(uiState: PrayerListScreenState, onUpdateLocation: () -> Unit) {
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ScalingLazyColumnDefaults.ItemType.Text,
@@ -94,75 +78,95 @@ fun PrayerListScreen(uiState: PrayerListScreenState) {
 
     ScreenScaffold(scrollState = columnState) {
         when (uiState) {
-            is PrayerListScreenState.Success -> {
-                PrayerListSuccessScreen(
-                    columnState = columnState, uiState = uiState
+            is PrayerListScreenState.FoundLocation -> {
+                PrayerListMainScreen(
+                    columnState = columnState,
+                    uiState = uiState.state,
+                    updating = false,
+                    onUpdateLocation = onUpdateLocation
                 )
             }
 
-            is PrayerListScreenState.NoCachedLocation -> {
-                PrayerListNoCachedLocationScreen(columnState = columnState)
+            is PrayerListScreenState.UpdatingLocation -> {
+                PrayerListMainScreen(
+                    columnState = columnState,
+                    uiState = uiState.state,
+                    updating = true,
+                    onUpdateLocation = onUpdateLocation
+                )
             }
 
-            is PrayerListScreenState.CachedLocation -> {
-                Text(text = "Location is cached")
+            is PrayerListScreenState.FailedLocation -> {
+                Text(text = "Location is failed")
             }
+
+            is PrayerListScreenState.NoLocation -> Text(text = "Apparently No location :(")
         }
     }
 }
 
+@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-private fun PrayerListNoCachedLocationScreen(
-    columnState: ScalingLazyColumnState
+private fun PrayerListMainScreen(
+    columnState: ScalingLazyColumnState,
+    uiState: PrayerListScreenState.ScreenState?,
+    updating: Boolean,
+    onUpdateLocation: () -> Unit
 ) {
+    val updatingState = rememberPlaceholderState { !updating }
+
     ScalingLazyColumn(columnState = columnState) {
         item {
-            PrayerTimesTitle(location = null)
+            PrayerTimesTitle(uiState?.location)
         }
-        items(Prayer.entries) {
-            PrayerCard(prayer = it, time = null)
+
+        when (uiState) {
+            null -> items(Prayer.entries) {
+                PrayerCard(prayer = it, time = null, updatingState)
+            }
+
+            else -> items(Prayer.entries) {
+                val time = uiState.prayers.getTimeString(it)
+                if (uiState.currentPrayer == it) {
+                    CurrentPrayerCard(
+                        it, time, uiState.currentPrayerMinutesLeft, updatingState
+                    )
+                } else {
+                    PrayerCard(it, time, updatingState)
+                }
+            }
         }
+
         item {
-            LocationButton(updating = true)
+            LocationButton(updating, onUpdateLocation)
         }
+
         item {
             SettingsButton()
         }
     }
-}
 
-@Composable
-private fun PrayerListSuccessScreen(
-    columnState: ScalingLazyColumnState, uiState: PrayerListScreenState.Success
-) {
-    ScalingLazyColumn(columnState = columnState) {
-        item {
-            PrayerTimesTitle(uiState.location)
-        }
-        items(Prayer.entries) { prayer ->
-            val time = uiState.prayers.getTimeString(prayer)
-            if (uiState.currentPrayer == prayer) {
-                CurrentPrayerCard(
-                    prayer, time, uiState.currentPrayerMinutesLeft
-                )
-            } else {
-                PrayerCard(prayer, time)
-            }
-        }
-        item {
-            LocationButton(updating = false)
-        }
-        item {
-            SettingsButton()
+
+    if (!updatingState.isShowContent) {
+        LaunchedEffect(updatingState) {
+            updatingState.startPlaceholderAnimation()
         }
     }
 }
 
+@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun CurrentPrayerCard(prayer: Prayer, time: String, minutesLeft: String) {
+fun CurrentPrayerCard(
+    prayer: Prayer,
+    time: String,
+    minutesLeft: String,
+    updatingState: PlaceholderState
+) {
     Card(
-        onClick = {}, enabled = false,
-        backgroundPainter = CardDefaults.cardBackgroundPainter(MaterialTheme.colors.primaryVariant)
+        onClick = {},
+        enabled = false,
+        backgroundPainter = CardDefaults.cardBackgroundPainter(MaterialTheme.colors.primaryVariant),
+        modifier = Modifier.placeholderShimmer(updatingState)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
@@ -183,13 +187,11 @@ fun CurrentPrayerCard(prayer: Prayer, time: String, minutesLeft: String) {
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun PrayerCard(prayer: Prayer, time: String?) {
-    val placeholderState = rememberPlaceholderState { time !== null }
-
+fun PrayerCard(prayer: Prayer, time: String?, updatingState: PlaceholderState) {
     Card(
         onClick = {},
         enabled = false,
-        modifier = Modifier.placeholderShimmer(placeholderState)
+        modifier = Modifier.placeholderShimmer(updatingState)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
@@ -197,7 +199,7 @@ fun PrayerCard(prayer: Prayer, time: String?) {
             Text(
                 text = stringResource(prayer.label), style = MaterialTheme.typography.title3
             )
-            if (time !== null) {
+            if (time != null) {
                 Text(
                     text = time, style = MaterialTheme.typography.title3
                 )
@@ -207,15 +209,9 @@ fun PrayerCard(prayer: Prayer, time: String?) {
                         .width(48.dp)
                         .height(16.dp)
                         .padding(top = 1.dp, bottom = 1.dp)
-                        .placeholder(placeholderState)
+                        .placeholder(updatingState)
                 )
             }
-        }
-    }
-
-    if (!placeholderState.isShowContent) {
-        LaunchedEffect(placeholderState) {
-            placeholderState.startPlaceholderAnimation()
         }
     }
 }
@@ -233,7 +229,7 @@ fun PrayerTimesTitle(location: String?) {
                 textAlign = TextAlign.Center,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (location !== null) {
+            location?.let {
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -248,7 +244,7 @@ fun PrayerTimesTitle(location: String?) {
                         contentDescription = "Location"
                     )
                     Text(
-                        text = location,
+                        text = it,
                         style = MaterialTheme.typography.caption2,
                         color = MaterialTheme.colors.onSurfaceVariant,
                         overflow = TextOverflow.Ellipsis,
@@ -260,12 +256,12 @@ fun PrayerTimesTitle(location: String?) {
 }
 
 @Composable
-fun LocationButton(updating: Boolean) {
+fun LocationButton(updating: Boolean, onClick: () -> Unit) {
     Chip(
         label = if (!updating) "Update location" else "Updating...",
         enabled = !updating,
         colors = ChipDefaults.outlinedChipColors(),
-        onClick = {}
+        onClick = onClick
     )
 }
 
@@ -274,13 +270,14 @@ fun SettingsButton() {
     Chip(label = "Settings", colors = ChipDefaults.secondaryChipColors(), onClick = {})
 }
 
+
 @WearPreviewDevices
 @Composable
 fun PrayerListScreenPreview() {
     SimplePrayerTheme {
-        PrayerListSuccessScreen(
+        PrayerListMainScreen(
             columnState = rememberColumnState(),
-            PrayerListScreenState.Success(
+            PrayerListScreenState.ScreenState(
                 "Shadwell", Prayer.DHUHR, "34m", PrayerDay(
                     Clock.System.now() - 3600.seconds,
                     Clock.System.now() - 600.seconds,
@@ -289,17 +286,19 @@ fun PrayerListScreenPreview() {
                     Clock.System.now() + 3600.seconds,
                     Clock.System.now() + 7200.seconds
                 )
-            )
+            ),
+            false,
+            {}
         )
     }
 }
 
 @WearPreviewDevices
 @Composable
-fun PrayerNoCachedLocationScreenPreview() {
+fun PrayerUpdatingLocationScreenPreview() {
     SimplePrayerTheme {
-        PrayerListNoCachedLocationScreen(
-            columnState = rememberColumnState(),
+        PrayerListMainScreen(
+            columnState = rememberColumnState(), null, true, {}
         )
     }
 }

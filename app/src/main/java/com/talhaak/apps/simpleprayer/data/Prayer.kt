@@ -1,5 +1,6 @@
 package com.talhaak.apps.simpleprayer.data
 
+import com.batoulapps.adhan2.PrayerTimes
 import com.talhaak.apps.simpleprayer.R
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
@@ -18,7 +19,8 @@ enum class Prayer(val label: Int) {
 }
 
 fun Adhan2Prayer.toAppPrayer(): Prayer = when (this) {
-    Adhan2Prayer.NONE -> throw IllegalArgumentException("NONE is not a valid prayer")
+    // TODO When before fajr, after midnight, show current day, "starts at"
+    Adhan2Prayer.NONE -> Prayer.ISHA
     Adhan2Prayer.FAJR -> Prayer.FAJR
     Adhan2Prayer.SUNRISE -> Prayer.SUNRISE
     Adhan2Prayer.DHUHR -> Prayer.DHUHR
@@ -49,3 +51,12 @@ data class PrayerDay(
         return time.toJavaInstant().atZone(ZoneId.systemDefault()).format(formatter)
     }
 }
+
+fun PrayerTimes.toAppPrayerDay(): PrayerDay = PrayerDay(
+    fajr = this.fajr,
+    sunrise = this.sunrise,
+    dhuhr = this.dhuhr,
+    asr = this.asr,
+    maghrib = this.maghrib,
+    isha = this.isha
+)
