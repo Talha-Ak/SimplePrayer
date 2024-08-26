@@ -15,12 +15,22 @@ enum class Prayer(val label: Int) {
     DHUHR(R.string.dhuhr),
     ASR(R.string.asr),
     MAGHRIB(R.string.maghrib),
-    ISHA(R.string.isha)
+    ISHA(R.string.isha);
+
+    fun next(): Prayer? {
+        return when (this) {
+            FAJR -> SUNRISE
+            SUNRISE -> DHUHR
+            DHUHR -> ASR
+            ASR -> MAGHRIB
+            MAGHRIB -> ISHA
+            ISHA -> null
+        }
+    }
 }
 
-fun Adhan2Prayer.toAppPrayer(): Prayer = when (this) {
-    // TODO When before fajr, after midnight, show current day, "starts at"
-    Adhan2Prayer.NONE -> Prayer.ISHA
+fun Adhan2Prayer.toAppPrayer(): Prayer? = when (this) {
+    Adhan2Prayer.NONE -> null
     Adhan2Prayer.FAJR -> Prayer.FAJR
     Adhan2Prayer.SUNRISE -> Prayer.SUNRISE
     Adhan2Prayer.DHUHR -> Prayer.DHUHR
@@ -37,8 +47,8 @@ data class PrayerDay(
     val maghrib: Instant,
     val isha: Instant
 ) {
-    fun getTimeString(prayer: Prayer): String {
-        val time = when (prayer) {
+    operator fun get(prayer: Prayer): Instant {
+        return when (prayer) {
             Prayer.FAJR -> fajr
             Prayer.SUNRISE -> sunrise
             Prayer.DHUHR -> dhuhr
@@ -46,10 +56,12 @@ data class PrayerDay(
             Prayer.MAGHRIB -> maghrib
             Prayer.ISHA -> isha
         }
-
-        val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-        return time.toJavaInstant().atZone(ZoneId.systemDefault()).format(formatter)
     }
+}
+
+fun Instant.toFormattedString(): String {
+    val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+    return this.toJavaInstant().atZone(ZoneId.systemDefault()).format(formatter)
 }
 
 fun PrayerTimes.toAppPrayerDay(): PrayerDay = PrayerDay(

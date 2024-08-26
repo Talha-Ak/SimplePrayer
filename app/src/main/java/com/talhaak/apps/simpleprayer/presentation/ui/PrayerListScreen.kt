@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,7 +35,6 @@ import androidx.wear.compose.material.placeholder
 import androidx.wear.compose.material.placeholderShimmer
 import androidx.wear.compose.material.rememberPlaceholderState
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults.listTextPadding
@@ -50,11 +50,14 @@ import com.google.android.horologist.compose.material.ResponsiveListHeader
 import com.google.android.horologist.images.base.paintable.ImageVectorPaintable.Companion.asPaintable
 import com.talhaak.apps.simpleprayer.data.Prayer
 import com.talhaak.apps.simpleprayer.data.PrayerDay
+import com.talhaak.apps.simpleprayer.data.toFormattedString
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PrayerListScreen(
     prayerListViewModel: PrayerListScreenViewModel = viewModel(factory = PrayerListScreenViewModel.Factory),
@@ -63,12 +66,12 @@ fun PrayerListScreen(
     Log.d("PrayerListScreen", "uiState: $uiState")
     PrayerListScreen(
         uiState = uiState,
-        onUpdateLocation = { prayerListViewModel.updateLocation() }
-        )
+        onUpdate = { prayerListViewModel.updateLocation() }
+    )
 }
 
 @Composable
-fun PrayerListScreen(uiState: PrayerListScreenState, onUpdateLocation: () -> Unit) {
+fun PrayerListScreen(uiState: PrayerListScreenState, onUpdate: () -> Unit) {
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ScalingLazyColumnDefaults.ItemType.Text,
@@ -83,7 +86,7 @@ fun PrayerListScreen(uiState: PrayerListScreenState, onUpdateLocation: () -> Uni
                     columnState = columnState,
                     uiState = uiState.state,
                     updating = false,
-                    onUpdateLocation = onUpdateLocation
+                    onUpdate = onUpdate
                 )
             }
 
@@ -92,7 +95,7 @@ fun PrayerListScreen(uiState: PrayerListScreenState, onUpdateLocation: () -> Uni
                     columnState = columnState,
                     uiState = uiState.state,
                     updating = true,
-                    onUpdateLocation = onUpdateLocation
+                    onUpdate = onUpdate
                 )
             }
 
@@ -111,7 +114,7 @@ private fun PrayerListMainScreen(
     columnState: ScalingLazyColumnState,
     uiState: PrayerListScreenState.ScreenState?,
     updating: Boolean,
-    onUpdateLocation: () -> Unit
+    onUpdate: () -> Unit
 ) {
     val updatingState = rememberPlaceholderState { !updating }
 
@@ -125,20 +128,40 @@ private fun PrayerListMainScreen(
                 PrayerCard(prayer = it, time = null, updatingState)
             }
 
-            else -> items(Prayer.entries) {
-                val time = uiState.prayers.getTimeString(it)
-                if (uiState.currentPrayer == it) {
-                    CurrentPrayerCard(
-                        it, time, uiState.currentPrayerMinutesLeft, updatingState
+            else -> items(Prayer.entries) { prayer ->
+                val time = uiState.prayers[prayer]
+                when (prayer) {
+                    uiState.currentPrayer -> PrayerCard(
+                        prayer,
+                        time,
+                        updatingState,
+                        CardDefaults.cardBackgroundPainter(MaterialTheme.colors.primaryVariant)
+                    ) {
+                        Text(
+                            text = "Now",
+                            style = MaterialTheme.typography.caption3
+                        )
+                    }
+
+                    uiState.nextPrayer?.prayer -> NextPrayerCard(
+                        prayer,
+                        time,
+                        uiState.nextPrayer.timeTo,
+                        updatingState,
                     )
-                } else {
-                    PrayerCard(it, time, updatingState)
+
+                    else -> PrayerCard(
+                        prayer,
+                        time,
+                        updatingState
+                    )
                 }
+
             }
         }
 
         item {
-            LocationButton(updating, onUpdateLocation)
+            LocationButton(updating, onUpdate)
         }
 
         item {
@@ -156,52 +179,49 @@ private fun PrayerListMainScreen(
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun CurrentPrayerCard(
+fun NextPrayerCard(
     prayer: Prayer,
-    time: String,
-    minutesLeft: String,
-    updatingState: PlaceholderState
+    time: Instant,
+    timeLeft: Duration,
+    updatingState: PlaceholderState,
 ) {
-    Card(
-        onClick = {},
-        enabled = false,
-        backgroundPainter = CardDefaults.cardBackgroundPainter(MaterialTheme.colors.primaryVariant),
-        modifier = Modifier.placeholderShimmer(updatingState)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = stringResource(prayer.label), style = MaterialTheme.typography.title3
-            )
-            Text(
-                text = time, style = MaterialTheme.typography.title3
-            )
-        }
+    PrayerCard(prayer, time, updatingState) {
         Text(
-            text = "$minutesLeft left",
-            style = MaterialTheme.typography.caption3,
+            text = "Next: ${timeLeft.inWholeMinutes.minutes}",
+            style = MaterialTheme.typography.caption3
         )
     }
 }
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun PrayerCard(prayer: Prayer, time: String?, updatingState: PlaceholderState) {
+fun PrayerCard(
+    prayer: Prayer,
+    time: Instant?,
+    updatingState: PlaceholderState,
+    backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
+    aboveContent: @Composable () -> Unit = {}
+) {
     Card(
         onClick = {},
         enabled = false,
+        backgroundPainter = backgroundPainter,
         modifier = Modifier.placeholderShimmer(updatingState)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = stringResource(prayer.label), style = MaterialTheme.typography.title3
-            )
+            Column {
+                aboveContent()
+                Text(
+                    text = stringResource(prayer.label), style = MaterialTheme.typography.title3
+                )
+            }
             if (time != null) {
                 Text(
-                    text = time, style = MaterialTheme.typography.title3
+                    text = time.toFormattedString(), style = MaterialTheme.typography.title3
                 )
             } else {
                 Box(
@@ -270,7 +290,6 @@ fun SettingsButton() {
     Chip(label = "Settings", colors = ChipDefaults.secondaryChipColors(), onClick = {})
 }
 
-
 @WearPreviewDevices
 @Composable
 fun PrayerListScreenPreview() {
@@ -278,7 +297,10 @@ fun PrayerListScreenPreview() {
         PrayerListMainScreen(
             columnState = rememberColumnState(),
             PrayerListScreenState.ScreenState(
-                "Shadwell", Prayer.DHUHR, "34m", PrayerDay(
+                "Shadwell",
+                Prayer.DHUHR,
+                PrayerListScreenState.NextPrayer(Prayer.ASR, 10.minutes),
+                PrayerDay(
                     Clock.System.now() - 3600.seconds,
                     Clock.System.now() - 600.seconds,
                     Clock.System.now(),

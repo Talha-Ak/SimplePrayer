@@ -58,9 +58,11 @@ class PrayerRepository(
 
     suspend fun updateLocation(
         cancellationToken: CancellationToken,
-        onCompletion: (Boolean) -> Unit
+        onCompletion: (Boolean) -> Unit = {}
     ) {
+        Log.d("PrayerRepository", "Updating location")
         if (locationIsFresh()) {
+            Log.d("PrayerRepository", "Location is fresh")
             onCompletion(true)
             return
         }
@@ -78,6 +80,7 @@ class PrayerRepository(
         } else {
             onCompletion(false)
         }
+        Log.d("PrayerRepository", "Updated location")
     }
 
     fun calculatePrayers(date: Instant): PrayerTimes {

@@ -7,7 +7,7 @@ import android.os.Build
 import android.util.Log
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY
+import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.tasks.CancellationToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -20,10 +20,11 @@ class LocationRemoteDataSource(
     val geocoder: Geocoder?
 ) {
     suspend fun getLocation(cancellationToken: CancellationToken): Location? {
+        Log.d("LocationRemoteDataSource", "Getting location")
         return withContext(Dispatchers.IO) {
             val locationRequest = CurrentLocationRequest.Builder()
                 .setMaxUpdateAgeMillis(10 * 60 * 1000)
-                .setPriority(PRIORITY_BALANCED_POWER_ACCURACY)
+                .setPriority(PRIORITY_HIGH_ACCURACY)
                 .build()
             try {
                 val location = locationClient.getCurrentLocation(locationRequest, cancellationToken)

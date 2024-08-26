@@ -1,5 +1,6 @@
 package com.talhaak.apps.simpleprayer.presentation.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -8,6 +9,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.talhaak.apps.simpleprayer.MyApplication
+import com.talhaak.apps.simpleprayer.data.ClockBroadcastReceiver
 import com.talhaak.apps.simpleprayer.data.DeviceLocation
 import com.talhaak.apps.simpleprayer.data.Prayer
 import com.talhaak.apps.simpleprayer.data.PrayerDay
@@ -21,11 +23,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 class PrayerListScreenViewModel(
-    private val prayerRepository: PrayerRepository
+    private val prayerRepository: PrayerRepository,
+    private val clockBroadcastReceiver: ClockBroadcastReceiver
 ) : ViewModel() {
     val locationCancelSource = CancellationTokenSource()
     val isLoadingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -33,8 +36,11 @@ class PrayerListScreenViewModel(
     val uiState: StateFlow<PrayerListScreenState> = combine(
         isLoadingState,
         prayerRepository.lastLocationFlow,
-        ::combinedStateFlows
-    ).stateIn(
+        clockBroadcastReceiver.minuteTickFlow
+    ) { isLoading, location, yunit ->
+        Log.d("PrayerListScreenViewModel", "isLoading: $isLoading, location: $location")
+        combinedStateFlows(isLoading, location)
+    }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         PrayerListScreenState.UpdatingLocation(null)
@@ -48,14 +54,16 @@ class PrayerListScreenViewModel(
         viewModelScope.launch {
             isLoadingState.value = true
             prayerRepository.updateLocation(locationCancelSource.token) {
+                Log.d("PrayerListScreenViewModel", "updateLocation: $it")
                 isLoadingState.value = false
+                Log.d("PrayerListScreenViewModel", "isLoadingState: ${isLoadingState.value}")
             }
         }
     }
 
     private fun combinedStateFlows(
         isLoading: Boolean,
-        location: DeviceLocation
+        location: DeviceLocation,
     ): PrayerListScreenState = when {
         isLoading -> PrayerListScreenState.UpdatingLocation(location.coords?.let {
             getScreenStateFrom(location)
@@ -68,15 +76,25 @@ class PrayerListScreenViewModel(
 
     private fun getScreenStateFrom(location: DeviceLocation): PrayerListScreenState.ScreenState {
         val now = Clock.System.now()
-        val times = prayerRepository.calculatePrayers(now)
-        val timesTomorrow = prayerRepository.calculatePrayers(now + 1.days)
-        val nextPrayer = times.timeForPrayer(times.nextPrayer(now)) ?: timesTomorrow.fajr
+        val apiTimes = prayerRepository.calculatePrayers(now)
+        val times = apiTimes.toAppPrayerDay()
+
+        val currentPrayer = apiTimes.currentPrayer(now).toAppPrayer()
+        val nextPrayer = if (currentPrayer != null) {
+            currentPrayer.next()?.let {
+                val timeTo = times[it] + 1.minutes - now
+                PrayerListScreenState.NextPrayer(it, timeTo.inWholeMinutes.minutes)
+            }
+        } else {
+            val timeTo = times[Prayer.FAJR] + 1.minutes - now
+            PrayerListScreenState.NextPrayer(Prayer.FAJR, timeTo.inWholeMinutes.minutes)
+        }
 
         return PrayerListScreenState.ScreenState(
             location = location.area,
-            currentPrayer = times.currentPrayer(now).toAppPrayer(),
-            currentPrayerMinutesLeft = nextPrayer.minus(now).inWholeMinutes.minutes.toString(),
-            prayers = times.toAppPrayerDay()
+            currentPrayer = currentPrayer,
+            nextPrayer = nextPrayer,
+            prayers = times
         )
     }
 
@@ -89,17 +107,20 @@ class PrayerListScreenViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val prayerRepository = (this[APPLICATION_KEY] as MyApplication).prayerRepository
-                PrayerListScreenViewModel(prayerRepository)
+                val clockBroadcastReceiver =
+                    ClockBroadcastReceiver((this[APPLICATION_KEY] as MyApplication).applicationContext)
+                PrayerListScreenViewModel(prayerRepository, clockBroadcastReceiver)
             }
         }
     }
 }
 
 sealed interface PrayerListScreenState {
+    data class NextPrayer(val prayer: Prayer, val timeTo: Duration)
     data class ScreenState(
         val location: String,
-        val currentPrayer: Prayer,
-        val currentPrayerMinutesLeft: String,
+        val currentPrayer: Prayer?,
+        val nextPrayer: NextPrayer?,
         val prayers: PrayerDay
     )
 
