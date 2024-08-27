@@ -11,6 +11,7 @@ import com.google.android.horologist.compose.layout.ResponsiveTimeText
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 import com.talhaak.apps.simpleprayer.presentation.ui.permissionrequest.PermissionRequestScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.prayerlist.PrayerListScreen
+import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsScreen
 
 @Composable
 fun WearApp() {
@@ -28,6 +29,9 @@ fun WearApp() {
             ) {
                 composable(NavigationScreens.PrayerList.route) {
                     PrayerListScreen(
+                        navigateToSettings = {
+                            navController.navigate(NavigationScreens.Settings.route)
+                        },
                         navigateToLocationPermissionRequest = {
                             navController.navigate(
                                 NavigationScreens.PermissionRequest.destination(
@@ -44,6 +48,10 @@ fun WearApp() {
                             }
                         }
                     )
+                }
+
+                composable(NavigationScreens.Settings.route) {
+                    SettingsScreen()
                 }
 
                 composable(

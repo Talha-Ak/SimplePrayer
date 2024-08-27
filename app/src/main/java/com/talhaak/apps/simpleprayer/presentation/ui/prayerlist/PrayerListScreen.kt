@@ -52,6 +52,7 @@ import com.google.android.horologist.compose.material.Chip
 import com.google.android.horologist.compose.material.Icon
 import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
 import com.google.android.horologist.compose.material.ListHeaderDefaults.itemPadding
+import com.google.android.horologist.compose.material.OutlinedChip
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import com.google.android.horologist.images.base.paintable.ImageVectorPaintable.Companion.asPaintable
 import com.talhaak.apps.simpleprayer.R
@@ -70,6 +71,7 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 fun PrayerListScreen(
     prayerListViewModel: PrayerListScreenViewModel = viewModel(factory = PrayerListScreenViewModel.Factory),
+    navigateToSettings: () -> Unit,
     navigateToLocationPermissionRequest: () -> Unit
 ) {
     val locationPermissionState =
@@ -90,6 +92,7 @@ fun PrayerListScreen(
     PrayerListScreen(
         uiState = uiState,
         columnState = columnState,
+        navigateToSettings = navigateToSettings,
         onUpdate = prayerListViewModel::updateLocation
     )
 }
@@ -98,6 +101,7 @@ fun PrayerListScreen(
 fun PrayerListScreen(
     uiState: PrayerListScreenState,
     columnState: ScalingLazyColumnState,
+    navigateToSettings: () -> Unit,
     onUpdate: () -> Unit
 ) {
     ScreenScaffold(scrollState = columnState) {
@@ -111,6 +115,7 @@ fun PrayerListScreen(
                     columnState = columnState,
                     uiState = uiState.state,
                     updating = true,
+                    navigateToSettings = navigateToSettings,
                     onUpdate = onUpdate
                 )
             }
@@ -120,6 +125,7 @@ fun PrayerListScreen(
                     columnState = columnState,
                     uiState = uiState.state,
                     updating = false,
+                    navigateToSettings = navigateToSettings,
                     onUpdate = onUpdate
                 )
             }
@@ -175,6 +181,7 @@ private fun PrayerListMainScreen(
     columnState: ScalingLazyColumnState,
     uiState: PrayerListScreenState.ScreenState?,
     updating: Boolean,
+    navigateToSettings: () -> Unit,
     onUpdate: () -> Unit
 ) {
     val updatingState = rememberPlaceholderState { !updating }
@@ -227,7 +234,7 @@ private fun PrayerListMainScreen(
         }
 
         item {
-            SettingsButton()
+            SettingsButton(navigateToSettings)
         }
     }
 
@@ -308,7 +315,6 @@ fun PrayerTimesTitle(location: String? = null) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .listTextPadding(),
-                color = MaterialTheme.colors.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -341,20 +347,21 @@ fun PrayerTimesTitle(location: String? = null) {
 
 @Composable
 fun LocationButton(updating: Boolean, onClick: () -> Unit) {
-    Chip(
+    OutlinedChip(
         label = if (!updating) "Update location" else "Updating...",
+        icon = ImageVector.vectorResource(R.drawable.baseline_location_on_24).asPaintable(),
         enabled = !updating,
-        colors = ChipDefaults.outlinedChipColors(),
         onClick = onClick
     )
 }
 
 @Composable
-fun SettingsButton() {
+fun SettingsButton(navigateToSettings: () -> Unit) {
     Chip(
         label = "Settings",
+        icon = ImageVector.vectorResource(R.drawable.baseline_settings_24).asPaintable(),
         colors = ChipDefaults.secondaryChipColors(),
-        onClick = {}
+        onClick = navigateToSettings
     )
 }
 
@@ -364,7 +371,7 @@ fun PrayerListScreenPreview() {
     SimplePrayerTheme {
         PrayerListMainScreen(
             columnState = rememberColumnState(),
-            PrayerListScreenState.ScreenState(
+            uiState = PrayerListScreenState.ScreenState(
                 location = "Shadwell",
                 currentPrayer = Prayer.DHUHR,
                 nextPrayer = PrayerListScreenState.NextPrayer(Prayer.ASR, 10.minutes),
@@ -377,9 +384,10 @@ fun PrayerListScreenPreview() {
                     Clock.System.now() + 7200.seconds
                 )
             ),
-            false,
+            updating = false,
+            navigateToSettings = {},
+            onUpdate = {}
         )
-        {}
     }
 }
 
@@ -388,8 +396,8 @@ fun PrayerListScreenPreview() {
 fun PrayerUpdatingLocationScreenPreview() {
     SimplePrayerTheme {
         PrayerListMainScreen(
-            columnState = rememberColumnState(), null, true
-        ) {}
+            columnState = rememberColumnState(), null, true, {}, {}
+        )
     }
 }
 

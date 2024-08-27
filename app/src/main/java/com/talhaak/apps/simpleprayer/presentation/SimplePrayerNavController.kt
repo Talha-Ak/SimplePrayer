@@ -11,6 +11,10 @@ sealed class NavigationScreens(val route: String) {
         fun destination(): String = route
     }
 
+    object Settings : NavigationScreens("settings") {
+        fun desgination(): String = route
+    }
+
     object PermissionRequest :
         NavigationScreens("permissionRequest/{type}/{message}/{rationale}/{chipLabel}/{prevScreen}") {
         const val PERMISSION_TYPE = "type"
