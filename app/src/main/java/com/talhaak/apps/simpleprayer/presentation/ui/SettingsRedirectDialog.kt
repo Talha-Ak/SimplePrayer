@@ -4,11 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
@@ -19,6 +18,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.google.android.horologist.compose.material.CompactChip
 import com.google.android.horologist.compose.material.util.DECORATIVE_ELEMENT_CONTENT_DESCRIPTION
 import com.google.android.horologist.images.base.paintable.ImageVectorPaintable.Companion.asPaintable
+import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 
 @Composable
@@ -39,7 +39,7 @@ fun SettingsRedirectDialog(message: String, show: Boolean, onDismiss: () -> Unit
 fun SettingsRedirectAlert(message: String, onClick: () -> Unit) {
     Alert(icon = {
         Icon(
-            imageVector = Icons.Default.Info,
+            imageVector = ImageVector.vectorResource(R.drawable.baseline_location_on_24),
             contentDescription = DECORATIVE_ELEMENT_CONTENT_DESCRIPTION
         )
     }, title = {
@@ -51,7 +51,7 @@ fun SettingsRedirectAlert(message: String, onClick: () -> Unit) {
             CompactChip(
                 label = "Settings",
                 onClick = onClick,
-                icon = Icons.Default.Settings.asPaintable(),
+                icon = ImageVector.vectorResource(R.drawable.baseline_settings_24).asPaintable(),
             )
         }
     }

@@ -9,15 +9,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,6 +48,7 @@ import com.google.android.horologist.compose.material.Icon
 import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import com.google.android.horologist.images.base.paintable.ImageVectorPaintable.Companion.asPaintable
+import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.data.prayer.PrayerDay
 import com.talhaak.apps.simpleprayer.data.prayer.allPrayers
 import com.talhaak.apps.simpleprayer.data.prayer.getLabelFor
@@ -267,7 +268,8 @@ fun PrayerTimesTitle(location: String?) {
                         .padding(top = 4.dp),
                 ) {
                     Icon(
-                        paintable = Icons.Default.LocationOn.asPaintable(),
+                        paintable = ImageVector.vectorResource(R.drawable.baseline_location_on_24)
+                            .asPaintable(),
                         modifier = Modifier.size(16.dp),
                         contentDescription = "Location"
                     )
@@ -295,7 +297,11 @@ fun LocationButton(updating: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun SettingsButton() {
-    Chip(label = "Settings", colors = ChipDefaults.secondaryChipColors(), onClick = {})
+    Chip(
+        label = "Settings",
+        colors = ChipDefaults.secondaryChipColors(),
+        onClick = {}
+    )
 }
 
 @WearPreviewDevices
@@ -330,5 +336,12 @@ fun PrayerUpdatingLocationScreenPreview() {
         PrayerListMainScreen(
             columnState = rememberColumnState(), null, true
         ) {}
+    }
+}
+
+@WearPreviewDevices
+@Composable
+fun PrayerInvalidLocationScreenPreview() {
+    SimplePrayerTheme {
     }
 }

@@ -66,7 +66,6 @@ dependencies {
     implementation(libs.compose.ui.tooling)
     implementation(libs.compose.navigation)
     implementation(libs.accompanist.permissions)
-    implementation(libs.material.icons.core)
     implementation(libs.adhan2)
     implementation(libs.datastore.preferences)
     implementation(libs.play.services.location)
