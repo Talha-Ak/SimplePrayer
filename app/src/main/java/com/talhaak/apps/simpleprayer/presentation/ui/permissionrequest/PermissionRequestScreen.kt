@@ -1,4 +1,4 @@
-package com.talhaak.apps.simpleprayer.presentation.ui
+package com.talhaak.apps.simpleprayer.presentation.ui.permissionrequest
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -14,6 +14,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
@@ -23,6 +24,33 @@ import com.google.android.horologist.compose.material.Chip
 import com.google.android.horologist.compose.material.ListHeaderDefaults.itemPadding
 import com.google.android.horologist.compose.material.Title
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun PermissionRequestScreen(
+    permissionType: String,
+    message: String,
+    rationale: String,
+    chipLabel: String,
+    navigateOut: () -> Unit
+) {
+    var permissionAttempted by rememberSaveable { mutableStateOf(false) }
+    val locationPermissionState = rememberPermissionState(permissionType) { success ->
+        if (!success) {
+            permissionAttempted = true
+        } else {
+            navigateOut()
+        }
+    }
+
+    PermissionRequestScreen(
+        permissionState = locationPermissionState,
+        permissionAttempted = permissionAttempted,
+        message = message,
+        rationale = rationale,
+        chipLabel = chipLabel
+    )
+}
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable

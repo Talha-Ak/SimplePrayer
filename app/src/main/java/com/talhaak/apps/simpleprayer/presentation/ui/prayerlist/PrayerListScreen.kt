@@ -1,5 +1,6 @@
 package com.talhaak.apps.simpleprayer.presentation.ui.prayerlist
 
+import android.Manifest
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,9 @@ import androidx.wear.compose.material.placeholderShimmer
 import androidx.wear.compose.material.rememberPlaceholderState
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.batoulapps.adhan2.Prayer
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults.listTextPadding
@@ -62,10 +66,18 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PrayerListScreen(
     prayerListViewModel: PrayerListScreenViewModel = viewModel(factory = PrayerListScreenViewModel.Factory),
+    navigateToLocationPermissionRequest: () -> Unit
 ) {
+    val locationPermissionState =
+        rememberPermissionState(Manifest.permission.ACCESS_COARSE_LOCATION)
+    if (!locationPermissionState.status.isGranted) {
+        navigateToLocationPermissionRequest()
+    }
+
     val uiState by prayerListViewModel.uiState.collectAsStateWithLifecycle()
 
     val columnState = rememberResponsiveColumnState(

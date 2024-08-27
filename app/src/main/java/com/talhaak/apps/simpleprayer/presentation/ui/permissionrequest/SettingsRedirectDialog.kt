@@ -1,4 +1,4 @@
-package com.talhaak.apps.simpleprayer.presentation.ui
+package com.talhaak.apps.simpleprayer.presentation.ui.permissionrequest
 
 import android.content.Context
 import android.content.Intent
