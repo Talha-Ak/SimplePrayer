@@ -6,15 +6,19 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.batoulapps.adhan2.CalculationMethod
+import com.batoulapps.adhan2.Coordinates
+import com.batoulapps.adhan2.Madhab
+import com.batoulapps.adhan2.Prayer
+import com.batoulapps.adhan2.PrayerTimes
+import com.batoulapps.adhan2.data.DateComponents
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.talhaak.apps.simpleprayer.MyApplication
 import com.talhaak.apps.simpleprayer.data.ClockBroadcastReceiver
-import com.talhaak.apps.simpleprayer.data.Prayer
-import com.talhaak.apps.simpleprayer.data.PrayerDay
 import com.talhaak.apps.simpleprayer.data.location.LocationRepository
 import com.talhaak.apps.simpleprayer.data.location.StoredLocation
-import com.talhaak.apps.simpleprayer.data.toAppPrayer
-import com.talhaak.apps.simpleprayer.data.toAppPrayerDay
+import com.talhaak.apps.simpleprayer.data.prayer.PrayerDay
+import com.talhaak.apps.simpleprayer.data.prayer.toPrayerDay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -39,9 +43,9 @@ class PrayerListScreenViewModel(
     ) { isLoading, location, _ ->
         combinedStateFlows(isLoading, location)
     }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        PrayerListScreenState.UpdatingLocation(null)
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = PrayerListScreenState.UpdatingLocation(null)
     )
 
     init {
@@ -76,25 +80,27 @@ class PrayerListScreenViewModel(
 
     private fun getScreenStateFrom(location: StoredLocation.Valid): PrayerListScreenState.ScreenState {
         val now = Clock.System.now()
-        val apiTimes = locationRepository.calculatePrayers(now)
-        val times = apiTimes.toAppPrayerDay()
+        val apiTimes = PrayerTimes(
+            Coordinates(location.coords.lat, location.coords.long),
+            DateComponents.from(now),
+            CalculationMethod.TURKEY.parameters.copy(madhab = Madhab.HANAFI)
+        )
 
-        val currentPrayer = apiTimes.currentPrayer(now).toAppPrayer()
-        val nextPrayer = if (currentPrayer != null) {
-            currentPrayer.next()?.let {
-                val timeTo = times[it] + 1.minutes - now
-                PrayerListScreenState.NextPrayer(it, timeTo.inWholeMinutes.minutes)
-            }
-        } else {
-            val timeTo = times[Prayer.FAJR] + 1.minutes - now
-            PrayerListScreenState.NextPrayer(Prayer.FAJR, timeTo.inWholeMinutes.minutes)
-        }
+        val currentPrayer = apiTimes.currentPrayer(now)
+        val nextPrayer = apiTimes.nextPrayer(now)
+        val timeTo = apiTimes.timeForPrayer(nextPrayer)?.plus(1.minutes)?.minus(now)
 
         return PrayerListScreenState.ScreenState(
+            prayers = apiTimes.toPrayerDay(),
             location = location.area,
             currentPrayer = currentPrayer,
-            nextPrayer = nextPrayer,
-            prayers = times
+            nextPrayer = when (nextPrayer) {
+                Prayer.NONE -> null
+                else -> PrayerListScreenState.NextPrayer(
+                    nextPrayer,
+                    timeTo!!
+                )
+            },
         )
     }
 
@@ -118,10 +124,10 @@ class PrayerListScreenViewModel(
 sealed interface PrayerListScreenState {
     data class NextPrayer(val prayer: Prayer, val timeTo: Duration)
     data class ScreenState(
+        val prayers: PrayerDay,
         val location: String,
-        val currentPrayer: Prayer?,
+        val currentPrayer: Prayer,
         val nextPrayer: NextPrayer?,
-        val prayers: PrayerDay
     )
 
     data object NoLocation : PrayerListScreenState

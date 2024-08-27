@@ -1,6 +1,5 @@
 package com.talhaak.apps.simpleprayer.presentation.ui.prayerlist
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +34,7 @@ import androidx.wear.compose.material.placeholder
 import androidx.wear.compose.material.placeholderShimmer
 import androidx.wear.compose.material.rememberPlaceholderState
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
+import com.batoulapps.adhan2.Prayer
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults.listTextPadding
@@ -48,9 +48,10 @@ import com.google.android.horologist.compose.material.Icon
 import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import com.google.android.horologist.images.base.paintable.ImageVectorPaintable.Companion.asPaintable
-import com.talhaak.apps.simpleprayer.data.Prayer
-import com.talhaak.apps.simpleprayer.data.PrayerDay
-import com.talhaak.apps.simpleprayer.data.toFormattedString
+import com.talhaak.apps.simpleprayer.data.prayer.PrayerDay
+import com.talhaak.apps.simpleprayer.data.prayer.allPrayers
+import com.talhaak.apps.simpleprayer.data.prayer.getLabelFor
+import com.talhaak.apps.simpleprayer.data.prayer.toFormattedString
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -63,15 +64,7 @@ fun PrayerListScreen(
     prayerListViewModel: PrayerListScreenViewModel = viewModel(factory = PrayerListScreenViewModel.Factory),
 ) {
     val uiState by prayerListViewModel.uiState.collectAsStateWithLifecycle()
-    Log.d("PrayerListScreen", "uiState: $uiState")
-    PrayerListScreen(
-        uiState = uiState,
-        onUpdate = { prayerListViewModel.updateLocation() }
-    )
-}
 
-@Composable
-fun PrayerListScreen(uiState: PrayerListScreenState, onUpdate: () -> Unit) {
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ScalingLazyColumnDefaults.ItemType.Text,
@@ -79,6 +72,19 @@ fun PrayerListScreen(uiState: PrayerListScreenState, onUpdate: () -> Unit) {
         )
     )
 
+    PrayerListScreen(
+        uiState = uiState,
+        columnState = columnState,
+        onUpdate = prayerListViewModel::updateLocation
+    )
+}
+
+@Composable
+fun PrayerListScreen(
+    uiState: PrayerListScreenState,
+    columnState: ScalingLazyColumnState,
+    onUpdate: () -> Unit
+) {
     ScreenScaffold(scrollState = columnState) {
         when (uiState) {
             is PrayerListScreenState.FoundLocation -> {
@@ -124,11 +130,11 @@ private fun PrayerListMainScreen(
         }
 
         when (uiState) {
-            null -> items(Prayer.entries) {
+            null -> items(allPrayers()) {
                 PrayerCard(prayer = it, time = null, updatingState)
             }
 
-            else -> items(Prayer.entries) { prayer ->
+            else -> items(allPrayers()) { prayer ->
                 val time = uiState.prayers[prayer]
                 when (prayer) {
                     uiState.currentPrayer -> PrayerCard(
@@ -150,6 +156,7 @@ private fun PrayerListMainScreen(
                         updatingState,
                     )
 
+                    Prayer.NONE -> Unit
                     else -> PrayerCard(
                         prayer,
                         time,
@@ -216,7 +223,8 @@ fun PrayerCard(
             Column {
                 aboveContent()
                 Text(
-                    text = stringResource(prayer.label), style = MaterialTheme.typography.title3
+                    text = stringResource(getLabelFor(prayer)),
+                    style = MaterialTheme.typography.title3
                 )
             }
             if (time != null) {
@@ -297,10 +305,10 @@ fun PrayerListScreenPreview() {
         PrayerListMainScreen(
             columnState = rememberColumnState(),
             PrayerListScreenState.ScreenState(
-                "Shadwell",
-                Prayer.DHUHR,
-                PrayerListScreenState.NextPrayer(Prayer.ASR, 10.minutes),
-                PrayerDay(
+                location = "Shadwell",
+                currentPrayer = Prayer.DHUHR,
+                nextPrayer = PrayerListScreenState.NextPrayer(Prayer.ASR, 10.minutes),
+                prayers = PrayerDay(
                     Clock.System.now() - 3600.seconds,
                     Clock.System.now() - 600.seconds,
                     Clock.System.now(),
@@ -310,8 +318,8 @@ fun PrayerListScreenPreview() {
                 )
             ),
             false,
-            {}
         )
+        {}
     }
 }
 
@@ -320,7 +328,7 @@ fun PrayerListScreenPreview() {
 fun PrayerUpdatingLocationScreenPreview() {
     SimplePrayerTheme {
         PrayerListMainScreen(
-            columnState = rememberColumnState(), null, true, {}
-        )
+            columnState = rememberColumnState(), null, true
+        ) {}
     }
 }
