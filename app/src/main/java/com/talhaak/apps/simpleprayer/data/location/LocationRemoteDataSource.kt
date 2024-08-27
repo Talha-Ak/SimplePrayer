@@ -8,6 +8,7 @@ import android.util.Log
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY
+import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.tasks.CancellationToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -20,20 +21,10 @@ class LocationRemoteDataSource(
     private val geocoder: Geocoder?
 ) {
     suspend fun getLocation(cancellationToken: CancellationToken): Location? {
-        Log.d("LocationRemoteDataSource", "Getting location")
-        return withContext(Dispatchers.IO) {
-            val locationRequest = CurrentLocationRequest.Builder()
-                .setMaxUpdateAgeMillis(10 * 60 * 1000)
-                .setPriority(PRIORITY_BALANCED_POWER_ACCURACY)
-                .build()
-            try {
-                val location = locationClient.getCurrentLocation(locationRequest, cancellationToken)
-                return@withContext location.await()
-            } catch (e: SecurityException) {
-                Log.e("LocationRemoteDataSource", "Missing location permission", e)
-                return@withContext null
-            }
-        }
+        return getLocation(PRIORITY_BALANCED_POWER_ACCURACY, cancellationToken) ?: getLocation(
+            PRIORITY_HIGH_ACCURACY,
+            cancellationToken
+        )
     }
 
     suspend fun getArea(location: Location): String {
@@ -64,6 +55,25 @@ class LocationRemoteDataSource(
                 Log.e("LocationRemoteDataSource", "Error getting area", e)
             }
             return@withContext area
+        }
+    }
+
+    private suspend fun getLocation(
+        priority: Int,
+        cancellationToken: CancellationToken
+    ): Location? {
+        return withContext(Dispatchers.IO) {
+            val locationRequest = CurrentLocationRequest.Builder()
+                .setMaxUpdateAgeMillis(10 * 60 * 1000)
+                .setPriority(priority)
+                .build()
+            try {
+                val location = locationClient.getCurrentLocation(locationRequest, cancellationToken)
+                return@withContext location.await()
+            } catch (e: SecurityException) {
+                Log.e("LocationRemoteDataSource", "Missing location permission", e)
+                return@withContext null
+            }
         }
     }
 

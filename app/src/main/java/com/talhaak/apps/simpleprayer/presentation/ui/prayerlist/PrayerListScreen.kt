@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,7 @@ import com.google.android.horologist.compose.material.Card
 import com.google.android.horologist.compose.material.Chip
 import com.google.android.horologist.compose.material.Icon
 import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
+import com.google.android.horologist.compose.material.ListHeaderDefaults.itemPadding
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import com.google.android.horologist.images.base.paintable.ImageVectorPaintable.Companion.asPaintable
 import com.talhaak.apps.simpleprayer.R
@@ -88,13 +90,8 @@ fun PrayerListScreen(
 ) {
     ScreenScaffold(scrollState = columnState) {
         when (uiState) {
-            is PrayerListScreenState.FoundLocation -> {
-                PrayerListMainScreen(
-                    columnState = columnState,
-                    uiState = uiState.state,
-                    updating = false,
-                    onUpdate = onUpdate
-                )
+            is PrayerListScreenState.NoLocation -> {
+                SideEffect { onUpdate() }
             }
 
             is PrayerListScreenState.UpdatingLocation -> {
@@ -106,11 +103,56 @@ fun PrayerListScreen(
                 )
             }
 
-            is PrayerListScreenState.FailedLocation -> {
-                Text(text = "Location is failed")
+            is PrayerListScreenState.FoundLocation -> {
+                PrayerListMainScreen(
+                    columnState = columnState,
+                    uiState = uiState.state,
+                    updating = false,
+                    onUpdate = onUpdate
+                )
             }
 
-            is PrayerListScreenState.NoLocation -> Text(text = "Apparently No location :(")
+            is PrayerListScreenState.FailedLocation -> {
+                PrayerListFailedLocationScreen(
+                    columnState = columnState,
+                    onRetry = onUpdate
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PrayerListFailedLocationScreen(
+    columnState: ScalingLazyColumnState,
+    onRetry: () -> Unit
+) {
+    ScalingLazyColumn(columnState = columnState) {
+        item {
+            PrayerTimesTitle()
+        }
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(itemPadding()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    paintable = ImageVector.vectorResource(R.drawable.baseline_location_off_24)
+                        .asPaintable(),
+                    contentDescription = null,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = "Couldn't get location. Ensure location services are enabled.",
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        item {
+            LocationButton(false, onRetry)
         }
     }
 }
@@ -127,7 +169,7 @@ private fun PrayerListMainScreen(
 
     ScalingLazyColumn(columnState = columnState) {
         item {
-            PrayerTimesTitle(uiState?.location)
+            PrayerTimesTitle(uiState?.location ?: "Updating...")
         }
 
         when (uiState) {
@@ -246,7 +288,7 @@ fun PrayerCard(
 }
 
 @Composable
-fun PrayerTimesTitle(location: String?) {
+fun PrayerTimesTitle(location: String? = null) {
     ResponsiveListHeader(contentPadding = firstItemPadding()) {
         Column {
             Text(
