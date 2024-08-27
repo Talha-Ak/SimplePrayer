@@ -1,4 +1,4 @@
-package com.talhaak.apps.simpleprayer.presentation.ui
+package com.talhaak.apps.simpleprayer.presentation.ui.prayerlist
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement

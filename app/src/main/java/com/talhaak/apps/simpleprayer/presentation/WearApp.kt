@@ -17,7 +17,7 @@ import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ResponsiveTimeText
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 import com.talhaak.apps.simpleprayer.presentation.ui.PermissionRequestScreen
-import com.talhaak.apps.simpleprayer.presentation.ui.PrayerListScreen
+import com.talhaak.apps.simpleprayer.presentation.ui.prayerlist.PrayerListScreen
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable

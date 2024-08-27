@@ -1,4 +1,4 @@
-package com.talhaak.apps.simpleprayer.data
+package com.talhaak.apps.simpleprayer.data.location
 
 import android.location.Address
 import android.location.Geocoder
@@ -7,7 +7,7 @@ import android.os.Build
 import android.util.Log
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+import com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY
 import com.google.android.gms.tasks.CancellationToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -16,15 +16,15 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class LocationRemoteDataSource(
-    val locationClient: FusedLocationProviderClient,
-    val geocoder: Geocoder?
+    private val locationClient: FusedLocationProviderClient,
+    private val geocoder: Geocoder?
 ) {
     suspend fun getLocation(cancellationToken: CancellationToken): Location? {
         Log.d("LocationRemoteDataSource", "Getting location")
         return withContext(Dispatchers.IO) {
             val locationRequest = CurrentLocationRequest.Builder()
                 .setMaxUpdateAgeMillis(10 * 60 * 1000)
-                .setPriority(PRIORITY_HIGH_ACCURACY)
+                .setPriority(PRIORITY_BALANCED_POWER_ACCURACY)
                 .build()
             try {
                 val location = locationClient.getCurrentLocation(locationRequest, cancellationToken)
@@ -67,7 +67,6 @@ class LocationRemoteDataSource(
         }
     }
 
-    private fun getAreaFromAddress(address: Address): String {
-        return address.subAdminArea ?: address.locality ?: address.adminArea ?: ""
-    }
+    private fun getAreaFromAddress(address: Address): String =
+        address.subAdminArea ?: address.locality ?: address.adminArea ?: ""
 }
