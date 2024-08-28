@@ -22,13 +22,18 @@ import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 
 @Composable
-fun SettingsRedirectDialog(message: String, show: Boolean, onDismiss: () -> Unit) {
+fun SettingsRedirectDialog(
+    message: String,
+    icon: ImageVector,
+    show: Boolean,
+    onDismiss: () -> Unit
+) {
     val context = LocalContext.current
 
     Dialog(
         showDialog = show, onDismissRequest = onDismiss
     ) {
-        SettingsRedirectAlert(message) {
+        SettingsRedirectAlert(message, icon) {
             onDismiss()
             openAppSettings(context)
         }
@@ -36,12 +41,13 @@ fun SettingsRedirectDialog(message: String, show: Boolean, onDismiss: () -> Unit
 }
 
 @Composable
-fun SettingsRedirectAlert(message: String, onClick: () -> Unit) {
+fun SettingsRedirectAlert(message: String, icon: ImageVector? = null, onClick: () -> Unit) {
     Alert(icon = {
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.baseline_location_on_24),
-            contentDescription = DECORATIVE_ELEMENT_CONTENT_DESCRIPTION
-        )
+        if (icon != null)
+            Icon(
+                imageVector = icon,
+                contentDescription = DECORATIVE_ELEMENT_CONTENT_DESCRIPTION
+            )
     }, title = {
         Text(
             text = message, textAlign = TextAlign.Center, style = MaterialTheme.typography.title3
@@ -49,7 +55,7 @@ fun SettingsRedirectAlert(message: String, onClick: () -> Unit) {
     }) {
         item {
             CompactChip(
-                label = "Settings",
+                labelId = R.string.settings,
                 onClick = onClick,
                 icon = ImageVector.vectorResource(R.drawable.baseline_settings_24).asPaintable(),
             )
@@ -69,6 +75,8 @@ fun openAppSettings(context: Context) {
 @Composable
 fun SettingsRedirectAlertPreview() {
     SimplePrayerTheme {
-        SettingsRedirectAlert("You need to grant location permission to use this app") {}
+        SettingsRedirectAlert(
+            "You need to grant location permission to use this app",
+        ) {}
     }
 }

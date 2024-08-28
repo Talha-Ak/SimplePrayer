@@ -12,37 +12,22 @@ sealed class NavigationScreens(val route: String) {
     }
 
     object Settings : NavigationScreens("settings") {
-        fun desgination(): String = route
+        fun destination(): String = route
     }
 
     object PermissionRequest :
-        NavigationScreens("permissionRequest/{type}/{message}/{rationale}/{chipLabel}/{prevScreen}") {
+        NavigationScreens("permissionRequest/{type}/{prevScreen}") {
         const val PERMISSION_TYPE = "type"
-        const val MESSAGE = "message"
-        const val RATIONALE = "rationale"
-        const val CHIP_LABEL = "chipLabel"
         const val PREVIOUS_SCREEN = "prevScreen"
         fun destination(
             permissionType: String,
-            message: String,
-            rationale: String,
-            chipLabel: String,
             previousScreen: String
         ): String =
-            "permissionRequest/$permissionType/$message/$rationale/$chipLabel/$previousScreen"
+            "permissionRequest/$permissionType/$previousScreen"
 
         override val arguments: List<NamedNavArgument>
             get() = listOf(
                 navArgument(PERMISSION_TYPE) {
-                    type = NavType.StringType
-                },
-                navArgument(MESSAGE) {
-                    type = NavType.StringType
-                },
-                navArgument(RATIONALE) {
-                    type = NavType.StringType
-                },
-                navArgument(CHIP_LABEL) {
                     type = NavType.StringType
                 },
                 navArgument(PREVIOUS_SCREEN) {
@@ -50,5 +35,4 @@ sealed class NavigationScreens(val route: String) {
                 }
             )
     }
-
 }

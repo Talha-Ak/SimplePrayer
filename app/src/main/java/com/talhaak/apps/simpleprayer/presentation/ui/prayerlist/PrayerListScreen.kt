@@ -163,7 +163,7 @@ private fun PrayerListFailedLocationScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
-                    text = "Couldn't get location. Ensure location services are enabled.",
+                    text = stringResource(R.string.cant_find_location),
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center
                 )
@@ -188,7 +188,7 @@ private fun PrayerListMainScreen(
 
     ScalingLazyColumn(columnState = columnState) {
         item {
-            PrayerTimesTitle(uiState?.location ?: "Updating...")
+            PrayerTimesTitle(uiState?.location ?: stringResource(R.string.updating))
         }
 
         when (uiState) {
@@ -206,7 +206,7 @@ private fun PrayerListMainScreen(
                         CardDefaults.cardBackgroundPainter(MaterialTheme.colors.primaryVariant)
                     ) {
                         Text(
-                            text = "Now",
+                            text = stringResource(R.string.now),
                             style = MaterialTheme.typography.caption3
                         )
                     }
@@ -256,7 +256,7 @@ fun NextPrayerCard(
 ) {
     PrayerCard(prayer, time, updatingState) {
         Text(
-            text = "Next: ${timeLeft.inWholeMinutes.minutes}",
+            text = stringResource(R.string.next, timeLeft.inWholeMinutes.minutes),
             style = MaterialTheme.typography.caption3
         )
     }
@@ -311,7 +311,7 @@ fun PrayerTimesTitle(location: String? = null) {
     ResponsiveListHeader(contentPadding = firstItemPadding()) {
         Column {
             Text(
-                text = "Prayer Times",
+                text = stringResource(R.string.prayer_times),
                 modifier = Modifier
                     .fillMaxWidth()
                     .listTextPadding(),
@@ -331,7 +331,7 @@ fun PrayerTimesTitle(location: String? = null) {
                         paintable = ImageVector.vectorResource(R.drawable.baseline_location_on_24)
                             .asPaintable(),
                         modifier = Modifier.size(16.dp),
-                        contentDescription = "Location"
+                        contentDescription = stringResource(R.string.location)
                     )
                     Text(
                         text = it,
@@ -348,7 +348,7 @@ fun PrayerTimesTitle(location: String? = null) {
 @Composable
 fun LocationButton(updating: Boolean, onClick: () -> Unit) {
     OutlinedChip(
-        label = if (!updating) "Update location" else "Updating...",
+        label = stringResource(if (updating) R.string.updating else R.string.update_location),
         icon = ImageVector.vectorResource(R.drawable.baseline_location_on_24).asPaintable(),
         enabled = !updating,
         onClick = onClick
@@ -358,7 +358,7 @@ fun LocationButton(updating: Boolean, onClick: () -> Unit) {
 @Composable
 fun SettingsButton(navigateToSettings: () -> Unit) {
     Chip(
-        label = "Settings",
+        labelId = R.string.settings,
         icon = ImageVector.vectorResource(R.drawable.baseline_settings_24).asPaintable(),
         colors = ChipDefaults.secondaryChipColors(),
         onClick = navigateToSettings

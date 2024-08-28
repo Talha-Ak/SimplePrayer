@@ -11,4 +11,15 @@
     <string name="asr">Asr</string>
     <string name="maghrib">Maghrib</string>
     <string name="isha">Isha</string>
+    <string name="cant_find_location">Couldn\'t get location. Ensure location services are enabled.</string>
+    <string name="updating">Updating...</string>
+    <string name="now">Now</string>
+    <string name="next">Next: %1$s</string>
+    <string name="prayer_times">Prayer Times</string>
+    <string name="location">Location</string>
+    <string name="update_location">Update location</string>
+    <string name="settings">Settings</string>
+    <string name="location_request_message">To calculate prayer times, location permission is needed.</string>
+    <string name="location_request_rationale">You need to grant location permission to use this app</string>
+    <string name="location_request_allow_button">Allow location</string>
 </resources>
