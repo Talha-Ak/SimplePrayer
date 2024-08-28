@@ -1,17 +1,39 @@
 package com.talhaak.apps.simpleprayer.presentation
 
 import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+
+object SimplePrayerNavController {
+    fun NavController.navigateToPermissionRequest(permission: String) {
+        val prevScreen = this.currentDestination?.route ?: this.graph.startDestinationRoute ?: ""
+        navigate(
+            NavigationScreens.PermissionRequest.destination(permission, prevScreen)
+        ) {
+            popUpTo(prevScreen) {
+                inclusive = true
+            }
+        }
+    }
+
+    fun NavController.navigateOutOfPermissionRequest(prevRoute: String) {
+        navigate(prevRoute) {
+            popUpTo(NavigationScreens.PermissionRequest.route) {
+                inclusive = true
+            }
+        }
+    }
+
+    fun NavController.navigateToSettings() {
+        navigate(NavigationScreens.Settings.destination())
+    }
+}
 
 sealed class NavigationScreens(val route: String) {
     open val arguments: List<NamedNavArgument> = emptyList()
 
     object PrayerList : NavigationScreens("prayerList") {
-        fun destination(): String = route
-    }
-
-    object Settings : NavigationScreens("settings") {
         fun destination(): String = route
     }
 
@@ -34,5 +56,17 @@ sealed class NavigationScreens(val route: String) {
                     type = NavType.StringType
                 }
             )
+    }
+
+    object Settings : NavigationScreens("settings") {
+        fun destination(): String = route
+
+        object Main : NavigationScreens("settings/main") {
+            fun destination(): String = route
+        }
+
+        object Madhab : NavigationScreens("settings/madhab") {
+            fun destination(): String = route
+        }
     }
 }
