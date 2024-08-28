@@ -1,5 +1,6 @@
 package com.talhaak.apps.simpleprayer.data.prayer
 
+import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
 import com.batoulapps.adhan2.PrayerTimes
@@ -32,6 +33,21 @@ fun getLabelFor(prayer: Prayer) = when (prayer) {
 fun getLabelFor(madhab: Madhab) = when (madhab) {
     Madhab.SHAFI -> R.string.shafi
     Madhab.HANAFI -> R.string.hanafi
+}
+
+fun getLabelFor(method: CalculationMethod) = when (method) {
+    CalculationMethod.MUSLIM_WORLD_LEAGUE -> R.string.method_muslim_world_league
+    CalculationMethod.EGYPTIAN -> R.string.method_egyptian
+    CalculationMethod.KARACHI -> R.string.method_karachi
+    CalculationMethod.UMM_AL_QURA -> R.string.method_umm_al_qura
+    CalculationMethod.DUBAI -> R.string.method_dubai
+    CalculationMethod.MOON_SIGHTING_COMMITTEE -> R.string.method_moon_sighting_committee
+    CalculationMethod.NORTH_AMERICA -> R.string.method_north_america
+    CalculationMethod.KUWAIT -> R.string.method_kuwait
+    CalculationMethod.QATAR -> R.string.method_qatar
+    CalculationMethod.SINGAPORE -> R.string.method_singapore
+    CalculationMethod.TURKEY -> R.string.method_turkey
+    CalculationMethod.OTHER -> R.string.method_custom
 }
 
 data class PrayerDay(

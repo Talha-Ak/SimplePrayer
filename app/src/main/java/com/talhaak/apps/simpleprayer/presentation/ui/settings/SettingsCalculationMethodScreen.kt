@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
@@ -25,7 +26,7 @@ import com.talhaak.apps.simpleprayer.data.prayer.getLabelFor
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 
 @Composable
-fun SettingsMadhabScreen(
+fun SettingsCalculationMethodScreen(
     settingsViewModel: SettingsSharedViewModel = viewModel(factory = SettingsSharedViewModel.Factory),
 ) {
     val state by settingsViewModel.uiState.collectAsStateWithLifecycle()
@@ -33,43 +34,50 @@ fun SettingsMadhabScreen(
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ScalingLazyColumnDefaults.ItemType.Text,
-            last = ScalingLazyColumnDefaults.ItemType.Text,
+            last = ScalingLazyColumnDefaults.ItemType.Text
         )
     )
 
-    SettingsMadhabScreen(state, columnState, settingsViewModel::updateMadhab)
+    SettingsCalculationMethodScreen(
+        state = state,
+        columnState = columnState,
+        updateMethod = settingsViewModel::updateMethod
+    )
 }
 
 @Composable
-fun SettingsMadhabScreen(
+fun SettingsCalculationMethodScreen(
     state: SettingsState,
     columnState: ScalingLazyColumnState,
-    updateMadhab: (Madhab) -> Unit
+    updateMethod: (CalculationMethod) -> Unit
 ) {
     ScreenScaffold(scrollState = columnState) {
         ScalingLazyColumn(columnState = columnState) {
             item {
-                Title(R.string.madhab)
+                Title(R.string.calculation_method)
             }
-            item {
+            items(CalculationMethod.entries) { method ->
+                val (fajrAngle, ishaInterval, ishaAngle) = method.parameters.let {
+                    Triple(it.fajrAngle, it.ishaInterval, it.ishaAngle)
+                }
                 SettingsSelectableChip(
-                    label = stringResource(getLabelFor(Madhab.SHAFI)),
-                    secondaryLabel = stringResource(R.string.earlier_asr),
-                    selected = state is SettingsState.Success && state.madhab == Madhab.SHAFI,
-                    onSelected = { updateMadhab(Madhab.SHAFI) },
+                    label = stringResource(getLabelFor(method)),
+                    secondaryLabel = when (ishaInterval) {
+                        0 -> stringResource(R.string.fajr_isha_angles, fajrAngle, ishaAngle)
+                        else -> stringResource(
+                            R.string.fajr_isha_angle_interval,
+                            fajrAngle,
+                            ishaInterval
+                        )
+                    },
+                    selected = state is SettingsState.Success && state.method == method,
+                    onSelected = { updateMethod(method) }
                 )
             }
-            item {
-                SettingsSelectableChip(
-                    label = stringResource(getLabelFor(Madhab.HANAFI)),
-                    secondaryLabel = stringResource(R.string.later_asr),
-                    selected = state is SettingsState.Success && state.madhab == Madhab.HANAFI,
-                    onSelected = { updateMadhab(Madhab.HANAFI) },
-                )
-            }
+
             item {
                 Text(
-                    text = stringResource(R.string.madhab_setting_description),
+                    text = stringResource(R.string.method_setting_description),
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.secondaryVariant,
                     modifier = Modifier.padding(itemPadding())
@@ -79,15 +87,14 @@ fun SettingsMadhabScreen(
     }
 }
 
-
 @WearPreviewDevices
 @Composable
-fun SettingsMadhabScreenPreview() {
+fun SettingsCalculationMethodScreenPreview() {
     SimplePrayerTheme {
-        SettingsMadhabScreen(
-            state = SettingsState.Success(Madhab.HANAFI, CalculationMethod.MOON_SIGHTING_COMMITTEE),
+        SettingsCalculationMethodScreen(
+            state = SettingsState.Success(Madhab.SHAFI, CalculationMethod.MUSLIM_WORLD_LEAGUE),
             columnState = rememberColumnState(),
-            updateMadhab = {}
+            updateMethod = {}
         )
     }
 }

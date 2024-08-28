@@ -32,6 +32,10 @@ object SimplePrayerNavController {
     fun NavController.navigateToMadhabSettings() {
         navigate(NavigationScreens.Settings.Madhab.destination())
     }
+
+    fun NavController.navigateToMethodSettings() {
+        navigate(NavigationScreens.Settings.CalculationMethod.destination())
+    }
 }
 
 sealed class NavigationScreens(val route: String) {
@@ -70,6 +74,10 @@ sealed class NavigationScreens(val route: String) {
         }
 
         object Madhab : NavigationScreens("settings/madhab") {
+            fun destination(): String = route
+        }
+
+        object CalculationMethod : NavigationScreens("settings/method") {
             fun destination(): String = route
         }
     }

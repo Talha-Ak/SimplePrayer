@@ -354,7 +354,8 @@ fun LocationButton(updating: Boolean, onClick: () -> Unit) {
         label = stringResource(if (updating) R.string.updating else R.string.update_location),
         icon = ImageVector.vectorResource(R.drawable.baseline_location_on_24).asPaintable(),
         enabled = !updating,
-        onClick = onClick
+        onClick = onClick,
+        modifier = Modifier.padding(top = 12.dp)
     )
 }
 

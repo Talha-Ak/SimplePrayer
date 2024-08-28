@@ -30,4 +30,20 @@
     <string name="later_asr">Later Asr</string>
     <string name="madhab_setting_short_description">Controls Asr time calculation.</string>
     <string name="madhab_setting_description">Asr time can differ according to your madhab (school of thought). If Asr times are significantly incorrect, ensure the correct madhab is selected.</string>
+    <string name="method_muslim_world_league">Muslim World League</string>
+    <string name="method_egyptian">Egyptian</string>
+    <string name="method_karachi">Karachi</string>
+    <string name="method_umm_al_qura">Umm Al-Qura</string>
+    <string name="method_dubai">Dubai</string>
+    <string name="method_moon_sighting_committee">Moon Sighting Committee</string>
+    <string name="method_north_america">North America (ISNA)</string>
+    <string name="method_kuwait">Kuwait</string>
+    <string name="method_qatar">Qatar</string>
+    <string name="method_singapore">Singapore</string>
+    <string name="method_turkey">Turkey</string>
+    <string name="method_custom">Custom</string>
+    <string name="fajr_isha_angles">Fajr:\u00A0%1$s°, Isha:\u00A0%2$s°</string>
+    <string name="fajr_isha_angle_interval">Fajr:\u00A0%1$s°, Isha:\u00A0%2$sm</string>
+    <string name="method_setting_short_description">Controls how prayer times are calculated.</string>
+    <string name="method_setting_description">Different regions use different methods to calculate prayer times. Methods mainly differ in how Fajr and Isha are calculated. Select the method that best fits your local area.</string>
 </resources>

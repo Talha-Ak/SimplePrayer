@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.Madhab
 import com.talhaak.apps.simpleprayer.MyApplication
 import com.talhaak.apps.simpleprayer.data.userprefs.UserPreferencesRepository
@@ -22,7 +23,8 @@ class SettingsSharedViewModel(
     val uiState: StateFlow<SettingsState> =
         userPreferencesRepository.userPrefsFlow.map {
             SettingsState.Success(
-                madhab = it.madhab
+                madhab = it.madhab,
+                method = it.method
             )
         }.stateIn(
             scope = viewModelScope,
@@ -33,6 +35,12 @@ class SettingsSharedViewModel(
     fun updateMadhab(madhab: Madhab) {
         viewModelScope.launch {
             userPreferencesRepository.updateMadhab(madhab)
+        }
+    }
+
+    fun updateMethod(method: CalculationMethod) {
+        viewModelScope.launch {
+            userPreferencesRepository.updateCalculationMethod(method)
         }
     }
 
@@ -51,5 +59,6 @@ sealed interface SettingsState {
     data object Loading : SettingsState
     data class Success(
         val madhab: Madhab,
+        val method: CalculationMethod
     ) : SettingsState
 }
