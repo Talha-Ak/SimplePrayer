@@ -1,5 +1,6 @@
 package com.talhaak.apps.simpleprayer.data.prayer
 
+import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
 import com.batoulapps.adhan2.PrayerTimes
 import com.talhaak.apps.simpleprayer.R
@@ -26,6 +27,11 @@ fun getLabelFor(prayer: Prayer) = when (prayer) {
     Prayer.ASR -> R.string.asr
     Prayer.MAGHRIB -> R.string.maghrib
     Prayer.ISHA -> R.string.isha
+}
+
+fun getLabelFor(madhab: Madhab) = when (madhab) {
+    Madhab.SHAFI -> R.string.shafi
+    Madhab.HANAFI -> R.string.hanafi
 }
 
 data class PrayerDay(

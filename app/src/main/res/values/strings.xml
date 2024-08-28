@@ -12,7 +12,7 @@
     <string name="maghrib">Maghrib</string>
     <string name="isha">Isha</string>
     <string name="cant_find_location">Couldn\'t get location. Ensure location services are enabled.</string>
-    <string name="updating">Updating...</string>
+    <string name="updating">Updating…</string>
     <string name="now">Now</string>
     <string name="next">Next: %1$s</string>
     <string name="prayer_times">Prayer Times</string>
@@ -22,4 +22,12 @@
     <string name="location_request_message">To calculate prayer times, location permission is needed.</string>
     <string name="location_request_rationale">You need to grant location permission to use this app</string>
     <string name="location_request_allow_button">Allow location</string>
+    <string name="shafi">Shafi\'i, Maliki &amp; Hanbali</string>
+    <string name="hanafi">Hanafi</string>
+    <string name="madhab">Madhab</string>
+    <string name="calculation_method">Calculation Method</string>
+    <string name="earlier_asr">Earlier Asr</string>
+    <string name="later_asr">Later Asr</string>
+    <string name="madhab_setting_short_description">Controls Asr time calculation.</string>
+    <string name="madhab_setting_description">Asr time can differ according to your madhab (school of thought). If Asr times are significantly incorrect, ensure the correct madhab is selected.</string>
 </resources>

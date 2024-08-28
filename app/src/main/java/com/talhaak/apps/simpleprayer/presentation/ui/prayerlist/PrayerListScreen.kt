@@ -77,7 +77,10 @@ fun PrayerListScreen(
     val locationPermissionState =
         rememberPermissionState(Manifest.permission.ACCESS_COARSE_LOCATION)
     if (!locationPermissionState.status.isGranted) {
-        navigateToLocationPermissionRequest()
+        LaunchedEffect(Unit) {
+            navigateToLocationPermissionRequest()
+        }
+        return
     }
 
     val uiState by prayerListViewModel.uiState.collectAsStateWithLifecycle()

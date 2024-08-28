@@ -15,21 +15,19 @@ class LocationRepository(
 
     suspend fun updateLocation(
         cancellationToken: CancellationToken,
-        onCompletion: (Boolean) -> Unit = {}
-    ) {
+    ): Boolean {
         Log.d("PrayerRepository", "Updating location")
         if (locationIsFresh()) {
             Log.d("PrayerRepository", "Location is fresh")
-            onCompletion(true)
-            return
+            return true
         }
 
         val result = locationRemoteDataSource.getLocation(cancellationToken)
         val area = result?.let { locationRemoteDataSource.getArea(it) }
         locationLocalDataSource.updateLocation(result, area.orEmpty())
-        onCompletion(result != null)
-
         Log.d("PrayerRepository", "Updated location")
+
+        return result != null
     }
 
     private suspend fun locationIsFresh(): Boolean {

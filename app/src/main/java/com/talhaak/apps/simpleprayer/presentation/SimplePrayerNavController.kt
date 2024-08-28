@@ -28,6 +28,10 @@ object SimplePrayerNavController {
     fun NavController.navigateToSettings() {
         navigate(NavigationScreens.Settings.destination())
     }
+
+    fun NavController.navigateToMadhabSettings() {
+        navigate(NavigationScreens.Settings.Madhab.destination())
+    }
 }
 
 sealed class NavigationScreens(val route: String) {
