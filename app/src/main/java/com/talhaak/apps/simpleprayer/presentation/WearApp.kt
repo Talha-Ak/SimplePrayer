@@ -16,6 +16,7 @@ import androidx.wear.compose.navigation.rememberSwipeDismissableNavHostState
 import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ResponsiveTimeText
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateOutOfPermissionRequest
+import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToHighLatitudeSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToMadhabSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToMethodSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToPermissionRequest
@@ -24,6 +25,7 @@ import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 import com.talhaak.apps.simpleprayer.presentation.ui.permissionrequest.PermissionRequestScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.prayerlist.PrayerListScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsCalculationMethodScreen
+import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsHighLatitudeScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsMadhabScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsMainScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsSharedViewModel
@@ -91,6 +93,9 @@ fun WearApp() {
                             },
                             navigateToMethodSettings = {
                                 navController.navigateToMethodSettings()
+                            },
+                            navigateToHighLatitudeSettings = {
+                                navController.navigateToHighLatitudeSettings()
                             }
                         )
                     }
@@ -111,6 +116,15 @@ fun WearApp() {
                         )
 
                         SettingsCalculationMethodScreen(settingsViewModel = viewModel)
+                    }
+
+                    composable(NavigationScreens.Settings.HighLatitude.route) { entry ->
+                        val viewModel = entry.sharedViewModel<SettingsSharedViewModel>(
+                            navController = navController,
+                            factory = SettingsSharedViewModel.Factory
+                        )
+
+                        SettingsHighLatitudeScreen(settingsViewModel = viewModel)
                     }
                 }
             }

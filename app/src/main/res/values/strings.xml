@@ -46,4 +46,15 @@
     <string name="fajr_isha_angle_interval">Fajr:\u00A0%1$s°, Isha:\u00A0%2$sm</string>
     <string name="method_setting_short_description">Controls how prayer times are calculated.</string>
     <string name="method_setting_description">Different regions use different methods to calculate prayer times. Methods mainly differ in how Fajr and Isha are calculated. Select the method that best fits your local area.</string>
+    <string name="middle_of_the_night">Middle of the Night</string>
+    <string name="seventh_of_the_night">1/7th of the Night</string>
+    <string name="twilight_angle">Twilight Angle</string>
+    <string name="high_latitude_rule_automatic">Automatic</string>
+    <string name="high_latitude_rule">High Latitude Rule</string>
+    <string name="high_latitude_automatic_description">Adapted to your current latitude.</string>
+    <string name="high_latitude_description">In places of high latitude, the ruling used for the times of Fajr and Isha can be different. Disable automatic rule to select your own.</string>
+    <string name="high_latitude_setting_short_description">Controls ruling for Fajr/Isha in high latitudes.</string>
+    <string name="middle_of_the_night_description">Isha never after middle, Fajr never before middle</string>
+    <string name="seventh_of_the_night_description">Isha never after first 1/7, Fajr never before last 1/7</string>
+    <string name="twilight_angle_description">Fajr/Isha angles used to calculate earliest/latest times</string>
 </resources>

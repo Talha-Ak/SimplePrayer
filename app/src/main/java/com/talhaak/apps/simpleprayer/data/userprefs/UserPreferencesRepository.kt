@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.batoulapps.adhan2.CalculationMethod
+import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -17,6 +18,12 @@ import java.io.IOException
 class UserPreferencesRepository(
     private val dataStore: DataStore<Preferences>
 ) {
+    companion object {
+        val IS_HANAFI = booleanPreferencesKey("is_hanafi")
+        val CALC_METHOD = stringPreferencesKey("calculation_method")
+        val HIGH_LATITUDE = stringPreferencesKey("high_latitude")
+    }
+
     val userPrefsFlow: Flow<UserPreferences> = dataStore.data.catch { exception ->
         if (exception is IOException) {
             Log.e("UserPreferencesRepo", "Error reading preferences.", exception)
@@ -31,13 +38,11 @@ class UserPreferencesRepository(
             },
             method = CalculationMethod.valueOf(
                 preferences[CALC_METHOD] ?: CalculationMethod.MUSLIM_WORLD_LEAGUE.name
-            )
+            ),
+            highLatitudeRule = preferences[HIGH_LATITUDE]?.let {
+                HighLatitudeRule.valueOf(it)
+            }
         )
-    }
-
-    companion object {
-        val IS_HANAFI = booleanPreferencesKey("is_hanafi")
-        val CALC_METHOD = stringPreferencesKey("calculation_method")
     }
 
     suspend fun updateMadhab(madhab: Madhab) {
@@ -52,4 +57,13 @@ class UserPreferencesRepository(
         }
     }
 
+    suspend fun updateHighLatitudeRule(rule: HighLatitudeRule?) {
+        dataStore.edit { preferences ->
+            if (rule == null) {
+                preferences -= HIGH_LATITUDE
+            } else {
+                preferences[HIGH_LATITUDE] = rule.name
+            }
+        }
+    }
 }

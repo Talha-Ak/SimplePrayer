@@ -71,7 +71,7 @@ fun SettingsMadhabScreen(
                 Text(
                     text = stringResource(R.string.madhab_setting_description),
                     style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.secondaryVariant,
+                    color = MaterialTheme.colors.onSurface,
                     modifier = Modifier.padding(itemPadding())
                 )
             }

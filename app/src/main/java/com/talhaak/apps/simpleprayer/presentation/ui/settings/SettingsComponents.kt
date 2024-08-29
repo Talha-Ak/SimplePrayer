@@ -78,6 +78,7 @@ fun SettingsSelectableChip(
     onSelected: () -> Unit,
     label: String,
     secondaryLabel: String? = null,
+    enabled: Boolean = true
 ) {
     SelectableChip(
         label = {
@@ -90,6 +91,7 @@ fun SettingsSelectableChip(
         },
         selected = selected,
         onClick = { checked -> if (checked) onSelected() },
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth()
     )
 }

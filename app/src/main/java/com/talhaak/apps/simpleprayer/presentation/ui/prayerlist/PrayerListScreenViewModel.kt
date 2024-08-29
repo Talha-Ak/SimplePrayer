@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.Coordinates
 import com.batoulapps.adhan2.Prayer
 import com.batoulapps.adhan2.PrayerTimes
@@ -89,7 +88,10 @@ class PrayerListScreenViewModel(
         val apiTimes = PrayerTimes(
             Coordinates(location.coords.lat, location.coords.long),
             DateComponents.from(now),
-            CalculationMethod.TURKEY.parameters.copy(madhab = userPrefs.madhab)
+            userPrefs.method.parameters.copy(
+                madhab = userPrefs.madhab,
+                highLatitudeRule = userPrefs.highLatitudeRule
+            )
         )
 
         val currentPrayer = apiTimes.currentPrayer(now)

@@ -36,6 +36,10 @@ object SimplePrayerNavController {
     fun NavController.navigateToMethodSettings() {
         navigate(NavigationScreens.Settings.CalculationMethod.destination())
     }
+
+    fun NavController.navigateToHighLatitudeSettings() {
+        navigate(NavigationScreens.Settings.HighLatitude.destination())
+    }
 }
 
 sealed class NavigationScreens(val route: String) {
@@ -78,6 +82,10 @@ sealed class NavigationScreens(val route: String) {
         }
 
         object CalculationMethod : NavigationScreens("settings/method") {
+            fun destination(): String = route
+        }
+
+        object HighLatitude : NavigationScreens("settings/highLatitude") {
             fun destination(): String = route
         }
     }

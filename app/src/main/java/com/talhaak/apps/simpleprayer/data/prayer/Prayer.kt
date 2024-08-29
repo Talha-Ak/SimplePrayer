@@ -1,6 +1,7 @@
 package com.talhaak.apps.simpleprayer.data.prayer
 
 import com.batoulapps.adhan2.CalculationMethod
+import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
 import com.batoulapps.adhan2.PrayerTimes
@@ -48,6 +49,12 @@ fun getLabelFor(method: CalculationMethod) = when (method) {
     CalculationMethod.SINGAPORE -> R.string.method_singapore
     CalculationMethod.TURKEY -> R.string.method_turkey
     CalculationMethod.OTHER -> R.string.method_custom
+}
+
+fun getLabelFor(rule: HighLatitudeRule) = when (rule) {
+    HighLatitudeRule.MIDDLE_OF_THE_NIGHT -> R.string.middle_of_the_night
+    HighLatitudeRule.SEVENTH_OF_THE_NIGHT -> R.string.seventh_of_the_night
+    HighLatitudeRule.TWILIGHT_ANGLE -> R.string.twilight_angle
 }
 
 data class PrayerDay(

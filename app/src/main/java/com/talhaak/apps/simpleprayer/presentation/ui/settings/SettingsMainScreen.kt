@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.wear.compose.material.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.Madhab
@@ -14,6 +15,7 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumnState
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberColumnState
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
+import com.google.android.horologist.compose.material.ResponsiveListHeader
 import com.google.android.horologist.compose.material.Title
 import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.data.prayer.getLabelFor
@@ -24,13 +26,14 @@ fun SettingsMainScreen(
     settingsViewModel: SettingsSharedViewModel = viewModel(factory = SettingsSharedViewModel.Factory),
     navigateToMadhabSettings: () -> Unit,
     navigateToMethodSettings: () -> Unit,
+    navigateToHighLatitudeSettings: () -> Unit,
 ) {
     val state by settingsViewModel.uiState.collectAsStateWithLifecycle()
 
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ScalingLazyColumnDefaults.ItemType.Text,
-            last = ScalingLazyColumnDefaults.ItemType.Text
+            last = ScalingLazyColumnDefaults.ItemType.Chip
         )
     )
 
@@ -38,7 +41,8 @@ fun SettingsMainScreen(
         state = state,
         columnState = columnState,
         navigateToMadhabSettings = navigateToMadhabSettings,
-        navigateToMethodSettings = navigateToMethodSettings
+        navigateToMethodSettings = navigateToMethodSettings,
+        navigateToHighLatitudeSettings = navigateToHighLatitudeSettings
     )
 }
 
@@ -47,7 +51,8 @@ fun SettingsMainScreen(
     state: SettingsState,
     columnState: ScalingLazyColumnState,
     navigateToMadhabSettings: () -> Unit,
-    navigateToMethodSettings: () -> Unit
+    navigateToMethodSettings: () -> Unit,
+    navigateToHighLatitudeSettings: () -> Unit
 ) {
     ScreenScaffold(scrollState = columnState) {
         ScalingLazyColumn(columnState = columnState) {
@@ -79,9 +84,22 @@ fun SettingsMainScreen(
 
             item {
                 SettingsChip(
-                    label = "High Latitude Rule",
-                    onClick = {}
+                    label = stringResource(R.string.high_latitude_rule),
+                    secondaryLabel = if (state is SettingsState.Success) {
+                        when (state.highLatitudeRule) {
+                            null -> stringResource(R.string.high_latitude_rule_automatic)
+                            else -> stringResource(getLabelFor(state.highLatitudeRule))
+                        }
+                    } else null,
+                    description = stringResource(R.string.high_latitude_setting_short_description),
+                    onClick = navigateToHighLatitudeSettings
                 )
+            }
+
+            item {
+                ResponsiveListHeader {
+                    Text("Advanced")
+                }
             }
 
             item {
@@ -113,7 +131,8 @@ fun SettingsMainScreenSuccessPreview() {
             ),
             columnState = rememberColumnState(),
             navigateToMadhabSettings = {},
-            navigateToMethodSettings = {}
+            navigateToMethodSettings = {},
+            navigateToHighLatitudeSettings = {}
         )
     }
 }
@@ -126,7 +145,8 @@ fun SettingsMainScreenLoadingPreview() {
             state = SettingsState.Loading,
             columnState = rememberColumnState(),
             navigateToMadhabSettings = {},
-            navigateToMethodSettings = {}
+            navigateToMethodSettings = {},
+            navigateToHighLatitudeSettings = {}
         )
     }
 }

@@ -79,7 +79,7 @@ fun SettingsCalculationMethodScreen(
                 Text(
                     text = stringResource(R.string.method_setting_description),
                     style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.secondaryVariant,
+                    color = MaterialTheme.colors.onSurface,
                     modifier = Modifier.padding(itemPadding())
                 )
             }

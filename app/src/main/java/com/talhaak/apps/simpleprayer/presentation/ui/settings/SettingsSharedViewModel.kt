@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.batoulapps.adhan2.CalculationMethod
+import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
 import com.talhaak.apps.simpleprayer.MyApplication
 import com.talhaak.apps.simpleprayer.data.userprefs.UserPreferencesRepository
@@ -24,7 +25,8 @@ class SettingsSharedViewModel(
         userPreferencesRepository.userPrefsFlow.map {
             SettingsState.Success(
                 madhab = it.madhab,
-                method = it.method
+                method = it.method,
+                highLatitudeRule = it.highLatitudeRule
             )
         }.stateIn(
             scope = viewModelScope,
@@ -44,6 +46,12 @@ class SettingsSharedViewModel(
         }
     }
 
+    fun updateHighLatitudeRule(rule: HighLatitudeRule?) {
+        viewModelScope.launch {
+            userPreferencesRepository.updateHighLatitudeRule(rule)
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -59,6 +67,7 @@ sealed interface SettingsState {
     data object Loading : SettingsState
     data class Success(
         val madhab: Madhab,
-        val method: CalculationMethod
+        val method: CalculationMethod,
+        val highLatitudeRule: HighLatitudeRule? = null
     ) : SettingsState
 }
