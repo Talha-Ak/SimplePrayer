@@ -26,7 +26,8 @@ class SettingsSharedViewModel(
             SettingsState.Success(
                 madhab = it.madhab,
                 method = it.method,
-                highLatitudeRule = it.highLatitudeRule
+                highLatitudeRule = it.highLatitudeRule,
+                customAngles = it.customAngles
             )
         }.stateIn(
             scope = viewModelScope,
@@ -52,6 +53,12 @@ class SettingsSharedViewModel(
         }
     }
 
+    fun updateCustomAngles(fajrAngle: Double, ishaAngle: Double) {
+        viewModelScope.launch {
+            userPreferencesRepository.updateCustomAngles(fajrAngle, ishaAngle)
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -68,6 +75,7 @@ sealed interface SettingsState {
     data class Success(
         val madhab: Madhab,
         val method: CalculationMethod,
-        val highLatitudeRule: HighLatitudeRule? = null
+        val highLatitudeRule: HighLatitudeRule? = null,
+        val customAngles: Pair<Double, Double> = method.parameters.fajrAngle to method.parameters.ishaAngle
     ) : SettingsState
 }

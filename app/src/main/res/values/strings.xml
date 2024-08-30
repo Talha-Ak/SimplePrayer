@@ -57,4 +57,10 @@
     <string name="middle_of_the_night_description">Isha never after middle, Fajr never before middle</string>
     <string name="seventh_of_the_night_description">Isha never after first 1/7, Fajr never before last 1/7</string>
     <string name="twilight_angle_description">Fajr/Isha angles used to calculate earliest/latest times</string>
+    <string name="advanced">Advanced</string>
+    <string name="fajr_angle">Fajr Angle</string>
+    <string name="isha_angle">Isha Angle</string>
+    <string name="confirm">Confirm</string>
+    <string name="reset_to_defaults">Reset to defaults</string>
+    <string name="custom_angles">Custom Angles</string>
 </resources>

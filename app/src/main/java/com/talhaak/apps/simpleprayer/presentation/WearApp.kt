@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.navigation
+
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
@@ -16,6 +17,7 @@ import androidx.wear.compose.navigation.rememberSwipeDismissableNavHostState
 import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ResponsiveTimeText
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateOutOfPermissionRequest
+import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToCustomAnglesSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToHighLatitudeSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToMadhabSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToMethodSettings
@@ -25,6 +27,7 @@ import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 import com.talhaak.apps.simpleprayer.presentation.ui.permissionrequest.PermissionRequestScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.prayerlist.PrayerListScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsCalculationMethodScreen
+import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsCustomAnglesScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsHighLatitudeScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsMadhabScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsMainScreen
@@ -96,6 +99,9 @@ fun WearApp() {
                             },
                             navigateToHighLatitudeSettings = {
                                 navController.navigateToHighLatitudeSettings()
+                            },
+                            navigateToCustomAnglesSettings = {
+                                navController.navigateToCustomAnglesSettings()
                             }
                         )
                     }
@@ -125,6 +131,17 @@ fun WearApp() {
                         )
 
                         SettingsHighLatitudeScreen(settingsViewModel = viewModel)
+                    }
+
+                    composable(NavigationScreens.Settings.CustomAngles.route) { entry ->
+                        val viewModel = entry.sharedViewModel<SettingsSharedViewModel>(
+                            navController = navController,
+                            factory = SettingsSharedViewModel.Factory
+                        )
+
+                        SettingsCustomAnglesScreen(
+                            settingsViewModel = viewModel,
+                            navigateBack = { navController.popBackStack() })
                     }
                 }
             }

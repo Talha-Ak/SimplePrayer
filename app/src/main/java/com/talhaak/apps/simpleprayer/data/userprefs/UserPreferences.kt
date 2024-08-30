@@ -7,5 +7,6 @@ import com.batoulapps.adhan2.Madhab
 data class UserPreferences(
     val madhab: Madhab,
     val method: CalculationMethod,
-    val highLatitudeRule: HighLatitudeRule? = null
+    val highLatitudeRule: HighLatitudeRule?,
+    val customAngles: Pair<Double, Double>
 )

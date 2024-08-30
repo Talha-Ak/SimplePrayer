@@ -40,6 +40,10 @@ object SimplePrayerNavController {
     fun NavController.navigateToHighLatitudeSettings() {
         navigate(NavigationScreens.Settings.HighLatitude.destination())
     }
+
+    fun NavController.navigateToCustomAnglesSettings() {
+        navigate(NavigationScreens.Settings.CustomAngles.destination())
+    }
 }
 
 sealed class NavigationScreens(val route: String) {
@@ -86,6 +90,10 @@ sealed class NavigationScreens(val route: String) {
         }
 
         object HighLatitude : NavigationScreens("settings/highLatitude") {
+            fun destination(): String = route
+        }
+
+        object CustomAngles : NavigationScreens("settings/customAngles") {
             fun destination(): String = route
         }
     }

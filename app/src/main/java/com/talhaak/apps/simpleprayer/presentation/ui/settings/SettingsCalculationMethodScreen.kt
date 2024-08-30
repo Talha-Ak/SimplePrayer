@@ -62,14 +62,15 @@ fun SettingsCalculationMethodScreen(
                 }
                 SettingsSelectableChip(
                     label = stringResource(getLabelFor(method)),
-                    secondaryLabel = when (ishaInterval) {
-                        0 -> stringResource(R.string.fajr_isha_angles, fajrAngle, ishaAngle)
-                        else -> stringResource(
-                            R.string.fajr_isha_angle_interval,
-                            fajrAngle,
-                            ishaInterval
-                        )
-                    },
+                    secondaryLabel = if (method == CalculationMethod.OTHER) null else
+                        when (ishaInterval) {
+                            0 -> stringResource(R.string.fajr_isha_angles, fajrAngle, ishaAngle)
+                            else -> stringResource(
+                                R.string.fajr_isha_angle_interval,
+                                fajrAngle,
+                                ishaInterval
+                            )
+                        },
                     selected = state is SettingsState.Success && state.method == method,
                     onSelected = { updateMethod(method) }
                 )

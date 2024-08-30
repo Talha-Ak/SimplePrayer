@@ -27,6 +27,7 @@ fun SettingsMainScreen(
     navigateToMadhabSettings: () -> Unit,
     navigateToMethodSettings: () -> Unit,
     navigateToHighLatitudeSettings: () -> Unit,
+    navigateToCustomAnglesSettings: () -> Unit
 ) {
     val state by settingsViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -42,7 +43,8 @@ fun SettingsMainScreen(
         columnState = columnState,
         navigateToMadhabSettings = navigateToMadhabSettings,
         navigateToMethodSettings = navigateToMethodSettings,
-        navigateToHighLatitudeSettings = navigateToHighLatitudeSettings
+        navigateToHighLatitudeSettings = navigateToHighLatitudeSettings,
+        navigateToCustomAnglesSettings = navigateToCustomAnglesSettings
     )
 }
 
@@ -52,7 +54,8 @@ fun SettingsMainScreen(
     columnState: ScalingLazyColumnState,
     navigateToMadhabSettings: () -> Unit,
     navigateToMethodSettings: () -> Unit,
-    navigateToHighLatitudeSettings: () -> Unit
+    navigateToHighLatitudeSettings: () -> Unit,
+    navigateToCustomAnglesSettings: () -> Unit,
 ) {
     ScreenScaffold(scrollState = columnState) {
         ScalingLazyColumn(columnState = columnState) {
@@ -98,14 +101,17 @@ fun SettingsMainScreen(
 
             item {
                 ResponsiveListHeader {
-                    Text("Advanced")
+                    Text(stringResource(R.string.advanced))
                 }
             }
 
             item {
                 SettingsChip(
-                    label = "Custom Angles",
-                    onClick = {}
+                    label = stringResource(R.string.custom_angles),
+                    secondaryLabel = if (state is SettingsState.Success) {
+                        state.customAngles.toString()
+                    } else null,
+                    onClick = navigateToCustomAnglesSettings
                 )
             }
 
@@ -132,21 +138,8 @@ fun SettingsMainScreenSuccessPreview() {
             columnState = rememberColumnState(),
             navigateToMadhabSettings = {},
             navigateToMethodSettings = {},
-            navigateToHighLatitudeSettings = {}
-        )
-    }
-}
-
-@WearPreviewDevices
-@Composable
-fun SettingsMainScreenLoadingPreview() {
-    SimplePrayerTheme {
-        SettingsMainScreen(
-            state = SettingsState.Loading,
-            columnState = rememberColumnState(),
-            navigateToMadhabSettings = {},
-            navigateToMethodSettings = {},
-            navigateToHighLatitudeSettings = {}
+            navigateToHighLatitudeSettings = {},
+            navigateToCustomAnglesSettings = {}
         )
     }
 }
