@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.talhaak.apps.simpleprayer"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.talhaak.apps.simpleprayer"
@@ -16,7 +16,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
     }
 
     buildTypes {
