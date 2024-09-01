@@ -30,7 +30,6 @@ class LocationRemoteDataSource(
     suspend fun getArea(location: Location): String {
         return withContext(Dispatchers.IO) {
             if (geocoder == null) {
-                // TODO: Use time?
                 return@withContext ""
             }
 

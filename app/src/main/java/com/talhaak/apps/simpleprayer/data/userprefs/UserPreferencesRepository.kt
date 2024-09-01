@@ -7,10 +7,14 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
+import com.batoulapps.adhan2.Prayer
+import com.batoulapps.adhan2.PrayerAdjustments
+import com.talhaak.apps.simpleprayer.data.prayer.get
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -26,6 +30,12 @@ class UserPreferencesRepository(
         val HIGH_LATITUDE = stringPreferencesKey("high_latitude")
         val CUSTOM_ANGLE_FAJR = doublePreferencesKey("custom_angle_fajr")
         val CUSTOM_ANGLE_ISHA = doublePreferencesKey("custom_angle_isha")
+        val FAJR_OFFSET = intPreferencesKey("fajr_offset")
+        val SUNRISE_OFFSET = intPreferencesKey("sunrise_offset")
+        val DHUHR_OFFSET = intPreferencesKey("dhuhr_offset")
+        val ASR_OFFSET = intPreferencesKey("asr_offset")
+        val MAGHRIB_OFFSET = intPreferencesKey("maghrib_offset")
+        val ISHA_OFFSET = intPreferencesKey("isha_offset")
     }
 
     val userPrefsFlow: Flow<UserPreferences> = dataStore.data.catch { exception ->
@@ -49,7 +59,17 @@ class UserPreferencesRepository(
             preferences[CUSTOM_ANGLE_FAJR] ?: method.parameters.fajrAngle,
             preferences[CUSTOM_ANGLE_ISHA] ?: method.parameters.ishaAngle
         )
-        UserPreferences(madhab, method, highLatitudeRule, customAngles)
+        val prayerAdjustments = with(method.parameters.methodAdjustments) {
+            PrayerAdjustments(
+                fajr = preferences[FAJR_OFFSET] ?: fajr,
+                sunrise = preferences[SUNRISE_OFFSET] ?: sunrise,
+                dhuhr = preferences[DHUHR_OFFSET] ?: dhuhr,
+                asr = preferences[ASR_OFFSET] ?: asr,
+                maghrib = preferences[MAGHRIB_OFFSET] ?: maghrib,
+                isha = preferences[ISHA_OFFSET] ?: isha
+            )
+        }
+        UserPreferences(madhab, method, highLatitudeRule, customAngles, prayerAdjustments)
     }
 
     suspend fun updateMadhab(madhab: Madhab) {
@@ -86,6 +106,26 @@ class UserPreferencesRepository(
                 preferences.remove(CUSTOM_ANGLE_ISHA)
             } else {
                 preferences[CUSTOM_ANGLE_ISHA] = ishaAngle
+            }
+        }
+    }
+
+    suspend fun updatePrayerOffset(prayer: Prayer, offset: Int) {
+        dataStore.edit { preferences ->
+            val key = when (prayer) {
+                Prayer.NONE -> throw IllegalArgumentException("Invalid prayer")
+                Prayer.FAJR -> FAJR_OFFSET
+                Prayer.SUNRISE -> SUNRISE_OFFSET
+                Prayer.DHUHR -> DHUHR_OFFSET
+                Prayer.ASR -> ASR_OFFSET
+                Prayer.MAGHRIB -> MAGHRIB_OFFSET
+                Prayer.ISHA -> ISHA_OFFSET
+            }
+
+            if (offset == userPrefsFlow.first().method.parameters.prayerAdjustments[prayer]) {
+                preferences.remove(key)
+            } else {
+                preferences[key] = offset
             }
         }
     }

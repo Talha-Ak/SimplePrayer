@@ -9,6 +9,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
+import com.batoulapps.adhan2.Prayer
+import com.batoulapps.adhan2.PrayerAdjustments
 import com.talhaak.apps.simpleprayer.MyApplication
 import com.talhaak.apps.simpleprayer.data.userprefs.UserPreferencesRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,7 +29,8 @@ class SettingsSharedViewModel(
                 madhab = it.madhab,
                 method = it.method,
                 highLatitudeRule = it.highLatitudeRule,
-                customAngles = it.customAngles
+                customAngles = it.customAngles,
+                prayerAdjustments = it.prayerAdjustments
             )
         }.stateIn(
             scope = viewModelScope,
@@ -59,6 +62,12 @@ class SettingsSharedViewModel(
         }
     }
 
+    fun updatePrayerOffset(prayer: Prayer, offset: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.updatePrayerOffset(prayer, offset)
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -76,6 +85,7 @@ sealed interface SettingsState {
         val madhab: Madhab,
         val method: CalculationMethod,
         val highLatitudeRule: HighLatitudeRule? = null,
-        val customAngles: Pair<Double, Double> = method.parameters.fajrAngle to method.parameters.ishaAngle
+        val customAngles: Pair<Double, Double> = method.parameters.fajrAngle to method.parameters.ishaAngle,
+        val prayerAdjustments: PrayerAdjustments = method.parameters.prayerAdjustments
     ) : SettingsState
 }

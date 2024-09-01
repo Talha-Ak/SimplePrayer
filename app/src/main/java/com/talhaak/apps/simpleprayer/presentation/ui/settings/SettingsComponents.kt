@@ -2,17 +2,22 @@ package com.talhaak.apps.simpleprayer.presentation.ui.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.PickerScope
 import androidx.wear.compose.material.SelectableChip
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.placeholder
@@ -95,3 +100,24 @@ fun SettingsSelectableChip(
         modifier = Modifier.fillMaxWidth()
     )
 }
+fun pickerTextOption(
+    textStyle: TextStyle,
+    indexToText: (Int) -> String,
+): (@Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit) =
+    { value: Int, pickerSelected: Boolean ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = indexToText(value),
+                maxLines = 1,
+                style = textStyle,
+                color = if (pickerSelected) {
+                    MaterialTheme.colors.secondary
+                } else {
+                    MaterialTheme.colors.onBackground
+                },
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .wrapContentSize(),
+            )
+        }
+    }

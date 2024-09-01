@@ -14,13 +14,12 @@ class ClockBroadcastReceiver(
     val context: Context
 ) {
     val minuteTickFlow: Flow<Unit> = callbackFlow {
-        trySendBlocking(Unit)
+        send(Unit)
 
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.action == Intent.ACTION_TIME_TICK) {
                     trySendBlocking(Unit)
-                    trySend(Unit)
                 }
             }
         }

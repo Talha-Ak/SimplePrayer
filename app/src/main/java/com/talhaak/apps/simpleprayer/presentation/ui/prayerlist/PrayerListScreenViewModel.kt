@@ -90,7 +90,10 @@ class PrayerListScreenViewModel(
             DateComponents.from(now),
             userPrefs.method.parameters.copy(
                 madhab = userPrefs.madhab,
-                highLatitudeRule = userPrefs.highLatitudeRule
+                highLatitudeRule = userPrefs.highLatitudeRule,
+                fajrAngle = userPrefs.customAngles.first,
+                ishaAngle = userPrefs.customAngles.second,
+                methodAdjustments = userPrefs.prayerAdjustments
             )
         )
 

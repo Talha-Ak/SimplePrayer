@@ -4,6 +4,7 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.batoulapps.adhan2.Prayer
 
 object SimplePrayerNavController {
     fun NavController.navigateToPermissionRequest(permission: String) {
@@ -43,6 +44,10 @@ object SimplePrayerNavController {
 
     fun NavController.navigateToCustomAnglesSettings() {
         navigate(NavigationScreens.Settings.CustomAngles.destination())
+    }
+
+    fun NavController.navigateToOffsetSettings(prayer: Prayer) {
+        navigate(NavigationScreens.Settings.Offset.destination(prayer))
     }
 }
 
@@ -95,6 +100,18 @@ sealed class NavigationScreens(val route: String) {
 
         object CustomAngles : NavigationScreens("settings/customAngles") {
             fun destination(): String = route
+        }
+
+        object Offset : NavigationScreens("settings/offset/{prayer}") {
+            const val PRAYER_TYPE = "prayer"
+            fun destination(prayer: Prayer): String = "settings/offset/${prayer.name}"
+
+            override val arguments: List<NamedNavArgument>
+                get() = listOf(
+                    navArgument(PRAYER_TYPE) {
+                        type = NavType.StringType
+                    }
+                )
         }
     }
 }

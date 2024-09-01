@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -258,9 +259,16 @@ fun NextPrayerCard(
     updatingState: PlaceholderState,
 ) {
     PrayerCard(prayer, time, updatingState) {
+        val isLargeScreen = LocalConfiguration.current.screenWidthDp >= 225
+        val textStyle = if (isLargeScreen) {
+            MaterialTheme.typography.caption2
+        } else {
+            MaterialTheme.typography.caption3
+        }
+
         Text(
             text = stringResource(R.string.next, timeLeft.inWholeMinutes.minutes),
-            style = MaterialTheme.typography.caption3
+            style = textStyle
         )
     }
 }
@@ -274,6 +282,8 @@ fun PrayerCard(
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
     aboveContent: @Composable () -> Unit = {}
 ) {
+    val textStyle = MaterialTheme.typography.title3
+
     Card(
         onClick = {},
         enabled = false,
@@ -289,12 +299,12 @@ fun PrayerCard(
                 aboveContent()
                 Text(
                     text = stringResource(getLabelFor(prayer)),
-                    style = MaterialTheme.typography.title3
+                    style = textStyle
                 )
             }
             if (time != null) {
                 Text(
-                    text = time.toFormattedString(), style = MaterialTheme.typography.title3
+                    text = time.toFormattedString(), style = textStyle
                 )
             } else {
                 Box(
@@ -311,6 +321,8 @@ fun PrayerCard(
 
 @Composable
 fun PrayerTimesTitle(location: String? = null) {
+    val textStyle = MaterialTheme.typography.title3
+
     ResponsiveListHeader(contentPadding = firstItemPadding()) {
         Column {
             Text(
@@ -318,6 +330,7 @@ fun PrayerTimesTitle(location: String? = null) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .listTextPadding(),
+                style = textStyle,
                 textAlign = TextAlign.Center,
                 overflow = TextOverflow.Ellipsis,
             )

@@ -5,10 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.Madhab
+import com.batoulapps.adhan2.Prayer
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScalingLazyColumnState
@@ -18,7 +20,10 @@ import com.google.android.horologist.compose.layout.rememberResponsiveColumnStat
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import com.google.android.horologist.compose.material.Title
 import com.talhaak.apps.simpleprayer.R
+import com.talhaak.apps.simpleprayer.data.prayer.allPrayers
+import com.talhaak.apps.simpleprayer.data.prayer.get
 import com.talhaak.apps.simpleprayer.data.prayer.getLabelFor
+import com.talhaak.apps.simpleprayer.data.prayer.getOffsetLabelFor
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 
 @Composable
@@ -27,7 +32,8 @@ fun SettingsMainScreen(
     navigateToMadhabSettings: () -> Unit,
     navigateToMethodSettings: () -> Unit,
     navigateToHighLatitudeSettings: () -> Unit,
-    navigateToCustomAnglesSettings: () -> Unit
+    navigateToCustomAnglesSettings: () -> Unit,
+    navigateToOffsetSettings: (Prayer) -> Unit
 ) {
     val state by settingsViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -44,7 +50,8 @@ fun SettingsMainScreen(
         navigateToMadhabSettings = navigateToMadhabSettings,
         navigateToMethodSettings = navigateToMethodSettings,
         navigateToHighLatitudeSettings = navigateToHighLatitudeSettings,
-        navigateToCustomAnglesSettings = navigateToCustomAnglesSettings
+        navigateToCustomAnglesSettings = navigateToCustomAnglesSettings,
+        navigateToOffsetSettings = navigateToOffsetSettings
     )
 }
 
@@ -56,6 +63,7 @@ fun SettingsMainScreen(
     navigateToMethodSettings: () -> Unit,
     navigateToHighLatitudeSettings: () -> Unit,
     navigateToCustomAnglesSettings: () -> Unit,
+    navigateToOffsetSettings: (Prayer) -> Unit
 ) {
     ScreenScaffold(scrollState = columnState) {
         ScalingLazyColumn(columnState = columnState) {
@@ -114,17 +122,19 @@ fun SettingsMainScreen(
                     onClick = navigateToCustomAnglesSettings
                 )
             }
-
-            item {
+            items(allPrayers()) { prayer ->
                 SettingsChip(
-                    label = "Custom Adjustments",
-                    onClick = {}
+                    label = stringResource(getOffsetLabelFor(prayer)),
+                    //TODO convert to resource
+                    secondaryLabel = if (state is SettingsState.Success) {
+                        state.prayerAdjustments[prayer].toString() + " minutes"
+                    } else null,
+                    onClick = { navigateToOffsetSettings(prayer) }
                 )
             }
         }
     }
 }
-
 
 @WearPreviewDevices
 @Composable
@@ -139,8 +149,8 @@ fun SettingsMainScreenSuccessPreview() {
             navigateToMadhabSettings = {},
             navigateToMethodSettings = {},
             navigateToHighLatitudeSettings = {},
-            navigateToCustomAnglesSettings = {}
+            navigateToCustomAnglesSettings = {},
+            navigateToOffsetSettings = {}
         )
     }
 }
-

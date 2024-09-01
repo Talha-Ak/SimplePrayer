@@ -3,7 +3,6 @@ package com.talhaak.apps.simpleprayer.presentation.ui.settings
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.spacedBy
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -41,7 +39,6 @@ import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PickerGroup
 import androidx.wear.compose.material.PickerGroupItem
-import androidx.wear.compose.material.PickerScope
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberPickerGroupState
 import androidx.wear.compose.material.rememberPickerState
@@ -277,28 +274,6 @@ fun getPickerWidth(textStyle: TextStyle): Dp {
     }
     return with(LocalDensity.current) { (digitWidth * 4.25f).toDp() + 6.dp }
 }
-
-fun pickerTextOption(
-    textStyle: TextStyle,
-    indexToText: (Int) -> String,
-): (@Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit) =
-    { value: Int, pickerSelected: Boolean ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = indexToText(value),
-                maxLines = 1,
-                style = textStyle,
-                color = if (pickerSelected) {
-                    MaterialTheme.colors.secondary
-                } else {
-                    MaterialTheme.colors.onBackground
-                },
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .wrapContentSize(),
-            )
-        }
-    }
 
 fun angleToIndex(angle: Double): Int = ((angle - 9.0) * 2).toInt()
 fun indexToAngle(index: Int): Double = 9 + (index.toDouble() / 2)

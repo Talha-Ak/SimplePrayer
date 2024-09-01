@@ -4,6 +4,7 @@ import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
+import com.batoulapps.adhan2.PrayerAdjustments
 import com.batoulapps.adhan2.PrayerTimes
 import com.talhaak.apps.simpleprayer.R
 import kotlinx.datetime.Instant
@@ -57,6 +58,16 @@ fun getLabelFor(rule: HighLatitudeRule) = when (rule) {
     HighLatitudeRule.TWILIGHT_ANGLE -> R.string.twilight_angle
 }
 
+fun getOffsetLabelFor(prayer: Prayer) = when (prayer) {
+    Prayer.NONE -> throw IllegalStateException()
+    Prayer.FAJR -> R.string.fajr_offset
+    Prayer.SUNRISE -> R.string.sunrise_offset
+    Prayer.DHUHR -> R.string.dhuhr_offset
+    Prayer.ASR -> R.string.asr_offset
+    Prayer.MAGHRIB -> R.string.maghrib_offset
+    Prayer.ISHA -> R.string.isha_offset
+}
+
 data class PrayerDay(
     val fajr: Instant,
     val sunrise: Instant,
@@ -86,6 +97,16 @@ fun PrayerTimes.toPrayerDay(): PrayerDay = PrayerDay(
     maghrib = this.maghrib,
     isha = this.isha
 )
+
+operator fun PrayerAdjustments.get(prayer: Prayer): Int = when (prayer) {
+    Prayer.NONE -> throw IllegalStateException()
+    Prayer.FAJR -> fajr
+    Prayer.SUNRISE -> sunrise
+    Prayer.DHUHR -> dhuhr
+    Prayer.ASR -> asr
+    Prayer.MAGHRIB -> maghrib
+    Prayer.ISHA -> isha
+}
 
 fun Instant.toFormattedString(): String {
     val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)

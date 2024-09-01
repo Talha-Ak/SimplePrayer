@@ -19,7 +19,7 @@
     <string name="location">Location</string>
     <string name="update_location">Update location</string>
     <string name="settings">Settings</string>
-    <string name="location_request_message">To calculate prayer times, location permission is needed.</string>
+    <string name="location_request_message">This app collects location data to calculate prayer times while you move, even when the app is closed.</string>
     <string name="location_request_rationale">You need to grant location permission to use this app</string>
     <string name="location_request_allow_button">Allow location</string>
     <string name="shafi">Shafi\'i, Maliki &amp; Hanbali</string>
@@ -63,4 +63,10 @@
     <string name="confirm">Confirm</string>
     <string name="reset_to_defaults">Reset to defaults</string>
     <string name="custom_angles">Custom Angles</string>
+    <string name="fajr_offset">Fajr Offset</string>
+    <string name="sunrise_offset">Sunrise Offset</string>
+    <string name="dhuhr_offset">Dhuhr Offset</string>
+    <string name="asr_offset">Asr Offset</string>
+    <string name="maghrib_offset">Maghrib Offset</string>
+    <string name="isha_offset">Isha Offset</string>
 </resources>

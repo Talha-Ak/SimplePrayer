@@ -9,11 +9,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.navigation
-
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavHostState
+import com.batoulapps.adhan2.Prayer
 import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ResponsiveTimeText
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateOutOfPermissionRequest
@@ -21,6 +21,7 @@ import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navi
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToHighLatitudeSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToMadhabSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToMethodSettings
+import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToOffsetSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToPermissionRequest
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToSettings
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
@@ -31,6 +32,7 @@ import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsCustomAngl
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsHighLatitudeScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsMadhabScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsMainScreen
+import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsOffsetScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsSharedViewModel
 
 @Composable
@@ -102,6 +104,9 @@ fun WearApp() {
                             },
                             navigateToCustomAnglesSettings = {
                                 navController.navigateToCustomAnglesSettings()
+                            },
+                            navigateToOffsetSettings = { prayer ->
+                                navController.navigateToOffsetSettings(prayer)
                             }
                         )
                     }
@@ -142,6 +147,26 @@ fun WearApp() {
                         SettingsCustomAnglesScreen(
                             settingsViewModel = viewModel,
                             navigateBack = { navController.popBackStack() })
+                    }
+
+                    composable(NavigationScreens.Settings.Offset.route) { entry ->
+                        entry.arguments?.let { args ->
+                            val prayer =
+                                args.getString(NavigationScreens.Settings.Offset.PRAYER_TYPE)
+
+                            if (prayer != null) {
+                                val viewModel = entry.sharedViewModel<SettingsSharedViewModel>(
+                                    navController = navController,
+                                    factory = SettingsSharedViewModel.Factory
+                                )
+
+                                SettingsOffsetScreen(
+                                    settingsViewModel = viewModel,
+                                    prayer = Prayer.valueOf(prayer),
+                                    navigateBack = { navController.popBackStack() }
+                                )
+                            }
+                        }
                     }
                 }
             }

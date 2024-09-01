@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
@@ -21,10 +22,10 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
+import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults.listTextPadding
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
 import com.google.android.horologist.compose.material.Chip
-import com.google.android.horologist.compose.material.ListHeaderDefaults.itemPadding
 import com.google.android.horologist.compose.material.Title
 import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
@@ -74,7 +75,7 @@ fun PermissionRequestScreen(
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PermissionRequestScreen(
-    permissionState: PermissionState,
+    permissionState: PermissionState?,
     permissionAttempted: Boolean,
     titleId: Int,
     iconId: Int,
@@ -107,15 +108,17 @@ fun PermissionRequestScreen(
                     text = stringResource(messageId),
                     style = MaterialTheme.typography.body2,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(itemPadding())
+                    modifier = Modifier.listTextPadding()
                 )
             }
             item {
-                Chip(labelId = chipLabelId, modifier = Modifier.padding(itemPadding()), onClick = {
-                    if (permissionAttempted && !permissionState.status.shouldShowRationale) {
-                        show = true
-                    } else {
-                        permissionState.launchPermissionRequest()
+                Chip(labelId = chipLabelId, modifier = Modifier.padding(top = 12.dp), onClick = {
+                    if (permissionState != null) {
+                        if (permissionAttempted && !permissionState.status.shouldShowRationale) {
+                            show = true
+                        } else {
+                            permissionState.launchPermissionRequest()
+                        }
                     }
                 })
             }
@@ -123,13 +126,19 @@ fun PermissionRequestScreen(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @WearPreviewDevices
 @Composable
 fun PermissionRequestScreenPreview() {
     SimplePrayerTheme {
         PermissionRequestScreen(
-            permissionType = Manifest.permission.ACCESS_COARSE_LOCATION,
-            navigateOut = {}
+            permissionState = null,
+            permissionAttempted = false,
+            R.string.location,
+            R.drawable.baseline_location_on_24,
+            R.string.location_request_message,
+            R.string.location_request_rationale,
+            R.string.location_request_allow_button
         )
     }
 }
