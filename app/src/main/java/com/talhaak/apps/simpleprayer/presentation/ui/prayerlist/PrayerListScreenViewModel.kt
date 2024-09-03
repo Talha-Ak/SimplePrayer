@@ -6,16 +6,14 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.batoulapps.adhan2.Coordinates
 import com.batoulapps.adhan2.Prayer
-import com.batoulapps.adhan2.PrayerTimes
-import com.batoulapps.adhan2.data.DateComponents
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.talhaak.apps.simpleprayer.MyApplication
 import com.talhaak.apps.simpleprayer.data.ClockBroadcastReceiver
 import com.talhaak.apps.simpleprayer.data.location.LocationRepository
 import com.talhaak.apps.simpleprayer.data.location.StoredLocation
 import com.talhaak.apps.simpleprayer.data.prayer.PrayerDay
+import com.talhaak.apps.simpleprayer.data.prayer.getPrayerTimes
 import com.talhaak.apps.simpleprayer.data.prayer.toPrayerDay
 import com.talhaak.apps.simpleprayer.data.userprefs.UserPreferences
 import com.talhaak.apps.simpleprayer.data.userprefs.UserPreferencesRepository
@@ -85,17 +83,7 @@ class PrayerListScreenViewModel(
         userPrefs: UserPreferences
     ): PrayerListScreenState.ScreenState {
         val now = Clock.System.now()
-        val apiTimes = PrayerTimes(
-            Coordinates(location.coords.lat, location.coords.long),
-            DateComponents.from(now),
-            userPrefs.method.parameters.copy(
-                madhab = userPrefs.madhab,
-                highLatitudeRule = userPrefs.highLatitudeRule,
-                fajrAngle = userPrefs.customAngles.first,
-                ishaAngle = userPrefs.customAngles.second,
-                methodAdjustments = userPrefs.prayerAdjustments
-            )
-        )
+        val apiTimes = getPrayerTimes(now, location, userPrefs)
 
         val currentPrayer = apiTimes.currentPrayer(now)
         val nextPrayer = apiTimes.nextPrayer(now)

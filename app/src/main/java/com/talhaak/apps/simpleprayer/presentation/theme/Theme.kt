@@ -1,6 +1,7 @@
 package com.talhaak.apps.simpleprayer.presentation.theme
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.toArgb
 import androidx.wear.compose.material.Colors
 import androidx.wear.compose.material.MaterialTheme
 
@@ -28,3 +29,14 @@ fun SimplePrayerTheme(
         content = content
     )
 }
+
+object SimplePrayerTheme {
+    val tileColors = wearColorPalette.toTileColors()
+}
+
+private fun Colors.toTileColors() = androidx.wear.protolayout.material.Colors(
+    primary.toArgb(),
+    onPrimary.toArgb(),
+    surface.toArgb(),
+    onSurface.toArgb()
+)

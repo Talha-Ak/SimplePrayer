@@ -1,5 +1,6 @@
 package com.talhaak.apps.simpleprayer.data.userprefs
 
+import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -9,20 +10,29 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.wear.tiles.TileUpdateRequester
 import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
 import com.batoulapps.adhan2.PrayerAdjustments
 import com.talhaak.apps.simpleprayer.data.prayer.get
+import com.talhaak.apps.simpleprayer.tiles.nextprayer.NextPrayerTileService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
+private const val USER_PREFS_DATASTORE_NAME = "user_prefs_datastore"
+val Context.userPrefsDatastore by preferencesDataStore(
+    name = USER_PREFS_DATASTORE_NAME
+)
+
 class UserPreferencesRepository(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val tileUpdateRequester: TileUpdateRequester
 ) {
     companion object {
         val IS_HANAFI = booleanPreferencesKey("is_hanafi")
@@ -69,6 +79,7 @@ class UserPreferencesRepository(
                 isha = preferences[ISHA_OFFSET] ?: isha
             )
         }
+
         UserPreferences(madhab, method, highLatitudeRule, customAngles, prayerAdjustments)
     }
 
@@ -76,12 +87,14 @@ class UserPreferencesRepository(
         dataStore.edit { preferences ->
             preferences[IS_HANAFI] = madhab == Madhab.HANAFI
         }
+        refreshTile()
     }
 
     suspend fun updateCalculationMethod(method: CalculationMethod) {
         dataStore.edit { preferences ->
             preferences[CALC_METHOD] = method.name
         }
+        refreshTile()
     }
 
     suspend fun updateHighLatitudeRule(rule: HighLatitudeRule?) {
@@ -92,6 +105,7 @@ class UserPreferencesRepository(
                 preferences[HIGH_LATITUDE] = rule.name
             }
         }
+        refreshTile()
     }
 
     suspend fun updateCustomAngles(fajrAngle: Double, ishaAngle: Double) {
@@ -108,6 +122,7 @@ class UserPreferencesRepository(
                 preferences[CUSTOM_ANGLE_ISHA] = ishaAngle
             }
         }
+        refreshTile()
     }
 
     suspend fun updatePrayerOffset(prayer: Prayer, offset: Int) {
@@ -128,5 +143,10 @@ class UserPreferencesRepository(
                 preferences[key] = offset
             }
         }
+        refreshTile()
+    }
+
+    private fun refreshTile() {
+        tileUpdateRequester.requestUpdate(NextPrayerTileService::class.java)
     }
 }

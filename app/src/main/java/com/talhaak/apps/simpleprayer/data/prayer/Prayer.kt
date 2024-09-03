@@ -1,12 +1,16 @@
 package com.talhaak.apps.simpleprayer.data.prayer
 
 import com.batoulapps.adhan2.CalculationMethod
+import com.batoulapps.adhan2.Coordinates
 import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
 import com.batoulapps.adhan2.PrayerAdjustments
 import com.batoulapps.adhan2.PrayerTimes
+import com.batoulapps.adhan2.data.DateComponents
 import com.talhaak.apps.simpleprayer.R
+import com.talhaak.apps.simpleprayer.data.location.StoredLocation
+import com.talhaak.apps.simpleprayer.data.userprefs.UserPreferences
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
 import java.time.ZoneId
@@ -66,6 +70,24 @@ fun getOffsetLabelFor(prayer: Prayer) = when (prayer) {
     Prayer.ASR -> R.string.asr_offset
     Prayer.MAGHRIB -> R.string.maghrib_offset
     Prayer.ISHA -> R.string.isha_offset
+}
+
+fun getPrayerTimes(
+    time: Instant,
+    location: StoredLocation.Valid,
+    prefs: UserPreferences
+): PrayerTimes {
+    return PrayerTimes(
+        Coordinates(location.coords.lat, location.coords.long),
+        DateComponents.from(time),
+        prefs.method.parameters.copy(
+            madhab = prefs.madhab,
+            highLatitudeRule = prefs.highLatitudeRule,
+            fajrAngle = prefs.customAngles.first,
+            ishaAngle = prefs.customAngles.second,
+            methodAdjustments = prefs.prayerAdjustments
+        )
+    )
 }
 
 data class PrayerDay(

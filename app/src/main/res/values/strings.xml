@@ -1,10 +1,5 @@
 <resources>
     <string name="app_name">SimplePrayer</string>
-    <!--
-    This string is used for square devices and overridden by hello_world in
-    values-round/strings.xml for round devices.
-    -->
-    <string name="hello_world">From the Square world,\nHello, %1$s!</string>
     <string name="fajr">Fajr</string>
     <string name="sunrise">Sunrise</string>
     <string name="dhuhr">Dhuhr</string>
@@ -69,4 +64,9 @@
     <string name="asr_offset">Asr Offset</string>
     <string name="maghrib_offset">Maghrib Offset</string>
     <string name="isha_offset">Isha Offset</string>
+    <string name="tile_next_prayer_label">Next Prayer</string>
+    <string name="tile_next_prayer_description">Countdown to next prayer</string>
+    <string name="no_location">No location</string>
+    <string name="next_prayer_tile_no_location">To get the next prayer, open the Simple Prayer app</string>
+    <string name="open">Open</string>
 </resources>

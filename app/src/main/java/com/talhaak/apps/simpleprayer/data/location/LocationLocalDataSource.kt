@@ -1,5 +1,6 @@
 package com.talhaak.apps.simpleprayer.data.location
 
+import android.content.Context
 import android.location.Location
 import android.util.Log
 import androidx.datastore.core.DataStore
@@ -10,10 +11,16 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
+
+private const val LOCATION_DATASTORE_NAME = "location_datastore"
+val Context.locationDatastore by preferencesDataStore(
+    name = LOCATION_DATASTORE_NAME
+)
 
 class LocationLocalDataSource(
     private val dataStore: DataStore<Preferences>
