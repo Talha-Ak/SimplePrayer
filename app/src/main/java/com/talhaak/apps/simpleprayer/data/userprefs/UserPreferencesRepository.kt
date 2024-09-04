@@ -18,7 +18,7 @@ import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
 import com.batoulapps.adhan2.PrayerAdjustments
 import com.talhaak.apps.simpleprayer.data.prayer.get
-import com.talhaak.apps.simpleprayer.tiles.nextprayer.NextPrayerTileService
+import com.talhaak.apps.simpleprayer.tiles.requestAllUpdates
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -147,6 +147,6 @@ class UserPreferencesRepository(
     }
 
     private fun refreshTile() {
-        tileUpdateRequester.requestUpdate(NextPrayerTileService::class.java)
+        tileUpdateRequester.requestAllUpdates()
     }
 }

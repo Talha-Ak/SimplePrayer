@@ -16,7 +16,6 @@ import androidx.wear.protolayout.TimelineBuilders.TimelineEntry
 import androidx.wear.protolayout.TypeBuilders
 import androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.material.ChipColors
 import androidx.wear.protolayout.material.CircularProgressIndicator
 import androidx.wear.protolayout.material.CompactChip
@@ -39,6 +38,7 @@ import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.data.prayer.getLabelFor
 import com.talhaak.apps.simpleprayer.data.prayer.toFormattedString
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
+import com.talhaak.apps.simpleprayer.tiles.countdown
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJavaInstant
 import java.time.Duration
@@ -190,22 +190,6 @@ private fun mainLayout(
                     .build()
             )
             .build()
-    )
-}
-
-fun countdown(context: Context, from: DynamicInstant, to: DynamicInstant): DynamicString {
-    val duration = from.durationUntil(to)
-    val hours = duration.hoursPart.format().concat(DynamicString.constant("h "))
-    val mins = duration.minutesPart.format().concat(DynamicString.constant("m"))
-
-    return DynamicString.onCondition(duration.hoursPart.gt(0)).use(
-        hours.concat(mins)
-    ).elseUse(
-        DynamicString.onCondition(duration.minutesPart.gt(0)).use(
-            mins
-        ).elseUse(
-            context.getString(R.string.now)
-        )
     )
 }
 

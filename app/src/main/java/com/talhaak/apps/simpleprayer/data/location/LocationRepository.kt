@@ -2,7 +2,7 @@ package com.talhaak.apps.simpleprayer.data.location
 
 import androidx.wear.tiles.TileUpdateRequester
 import com.google.android.gms.tasks.CancellationToken
-import com.talhaak.apps.simpleprayer.tiles.nextprayer.NextPrayerTileService
+import com.talhaak.apps.simpleprayer.tiles.requestAllUpdates
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.datetime.Clock
@@ -27,7 +27,7 @@ class LocationRepository(
         locationLocalDataSource.updateLocation(result, area.orEmpty())
 
         if (result != null) {
-            tileUpdateRequester.requestUpdate(NextPrayerTileService::class.java)
+            tileUpdateRequester.requestAllUpdates()
             return true
         } else {
             return false

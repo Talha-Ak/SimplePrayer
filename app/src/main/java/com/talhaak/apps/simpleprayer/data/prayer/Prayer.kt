@@ -17,6 +17,18 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
+fun Prayer.next(): Prayer {
+    return when (this) {
+        Prayer.NONE -> throw IllegalStateException()
+        Prayer.FAJR -> Prayer.SUNRISE
+        Prayer.SUNRISE -> Prayer.DHUHR
+        Prayer.DHUHR -> Prayer.ASR
+        Prayer.ASR -> Prayer.MAGHRIB
+        Prayer.MAGHRIB -> Prayer.ISHA
+        Prayer.ISHA -> Prayer.FAJR
+    }
+}
+
 fun allPrayers() = listOf(
     Prayer.FAJR,
     Prayer.SUNRISE,
