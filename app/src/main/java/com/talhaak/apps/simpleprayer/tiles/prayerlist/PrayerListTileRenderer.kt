@@ -260,7 +260,7 @@ private fun nextPrayer(
         ).setDynamicValue(
             DynamicString.constant(
                 context.getString(
-                    R.string.prayer_in,
+                    R.string.prayer_in_leading_space,
                     context.getString(getLabelFor(prayer))
                 )
             ).concat(

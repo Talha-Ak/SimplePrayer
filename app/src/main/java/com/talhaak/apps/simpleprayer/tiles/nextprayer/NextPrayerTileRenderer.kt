@@ -159,7 +159,10 @@ private fun mainLayout(
             .setPrimaryLabelTextContent(
                 Text.Builder(
                     context,
-                    context.getString(R.string.next, context.getString(getLabelFor(state.prayer)))
+                    context.getString(
+                        R.string.prayer_in,
+                        context.getString(getLabelFor(state.prayer))
+                    )
                 )
                     .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                     .setColor(argb(Color.White.toArgb()))

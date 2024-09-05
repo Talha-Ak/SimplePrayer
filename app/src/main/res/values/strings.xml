@@ -70,6 +70,7 @@
     <string name="next_prayer_tile_no_location">To get the next prayer, open the Simple Prayer app</string>
     <string name="prayer_list_tile_no_location">To view prayer times, open the Simple Prayer app</string>
     <string name="open">Open</string>
-    <string name="prayer_in">"%1$s in "</string>
+    <string name="prayer_in_leading_space">"%1$s in "</string>
+    <string name="prayer_in">%1$s in</string>
     <string name="tile_prayer_list_label">Prayer List</string>
 </resources>
