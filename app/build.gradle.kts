@@ -76,6 +76,8 @@ dependencies {
     implementation(libs.tiles.testing)
     implementation(libs.tiles)
     implementation(libs.tiles.tooling.preview)
+    implementation(libs.watchface.complications.data.source)
+    implementation(libs.watchface.complications.data.source.ktx)
     debugImplementation(libs.tiles.tooling)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
