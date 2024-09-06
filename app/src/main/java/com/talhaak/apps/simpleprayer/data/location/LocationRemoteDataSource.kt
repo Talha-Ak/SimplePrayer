@@ -14,67 +14,70 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
+import kotlin.coroutines.resume
+import kotlin.time.Duration.Companion.seconds
 
 class LocationRemoteDataSource(
     private val locationClient: FusedLocationProviderClient,
     private val geocoder: Geocoder?
 ) {
     suspend fun getLocation(cancellationToken: CancellationToken): Location? {
-        return getLocation(PRIORITY_BALANCED_POWER_ACCURACY, cancellationToken) ?: getLocation(
-            PRIORITY_HIGH_ACCURACY,
-            cancellationToken
-        )
+        return getLocation(PRIORITY_BALANCED_POWER_ACCURACY, cancellationToken)
+            ?: getLocation(PRIORITY_HIGH_ACCURACY, cancellationToken)
     }
 
-    suspend fun getArea(location: Location): String {
-        return withContext(Dispatchers.IO) {
-            if (geocoder == null) {
-                return@withContext ""
-            }
+    suspend fun getArea(location: Location): String =
+        withContext(Dispatchers.IO) {
+            withTimeoutOrNull(30.seconds) {
+                if (geocoder == null) {
+                    Log.e("LocationRemoteDataSource", "Geocoder is null")
+                    return@withTimeoutOrNull ""
+                }
 
-            var area = ""
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    area = suspendCancellableCoroutine { continuation ->
-                        geocoder.getFromLocation(location.latitude, location.longitude, 1) {
-                            it.firstOrNull()?.let { address ->
-                                continuation.resumeWith(Result.success(getAreaFromAddress(address)))
+                var area = ""
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        area = suspendCancellableCoroutine { continuation ->
+                            geocoder.getFromLocation(location.latitude, location.longitude, 1) {
+                                it.firstOrNull()?.let { address ->
+                                    continuation.resume(getAreaFromAddress(address))
+                                } ?: continuation.resume("")
                             }
                         }
+                    } else {
+                        val address =
+                            geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                        if (!address.isNullOrEmpty()) area = getAreaFromAddress(address[0])
                     }
-                } else {
-                    val address =
-                        geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                    if (!address.isNullOrEmpty()) area = getAreaFromAddress(address[0])
+                } catch (e: IllegalArgumentException) {
+                    Log.e("LocationRemoteDataSource", "Invalid coords for getting area", e)
+                } catch (e: IOException) {
+                    Log.e("LocationRemoteDataSource", "Error getting area", e)
                 }
-            } catch (e: IllegalArgumentException) {
-                Log.e("LocationRemoteDataSource", "Invalid coords for getting area", e)
-            } catch (e: IOException) {
-                Log.e("LocationRemoteDataSource", "Error getting area", e)
-            }
-            return@withContext area
+                area
+            } ?: ""
         }
-    }
 
     private suspend fun getLocation(
         priority: Int,
         cancellationToken: CancellationToken
-    ): Location? {
-        return withContext(Dispatchers.IO) {
+    ): Location? =
+        withContext(Dispatchers.IO) {
             val locationRequest = CurrentLocationRequest.Builder()
                 .setMaxUpdateAgeMillis(10 * 60 * 1000)
+                .setDurationMillis(30 * 1000)
                 .setPriority(priority)
                 .build()
             try {
                 val location = locationClient.getCurrentLocation(locationRequest, cancellationToken)
-                return@withContext location.await()
+                location.await()
             } catch (e: SecurityException) {
                 Log.e("LocationRemoteDataSource", "Missing location permission", e)
-                return@withContext null
+                null
             }
         }
-    }
 
     private fun getAreaFromAddress(address: Address): String =
         address.subAdminArea ?: address.locality ?: address.adminArea ?: ""

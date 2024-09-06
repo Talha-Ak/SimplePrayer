@@ -1,5 +1,6 @@
 package com.talhaak.apps.simpleprayer.data.location
 
+import android.location.Location
 import androidx.wear.tiles.TileUpdateRequester
 import com.google.android.gms.tasks.CancellationToken
 import com.talhaak.apps.simpleprayer.tiles.requestAllUpdates
@@ -23,15 +24,11 @@ class LocationRepository(
         }
 
         val result = locationRemoteDataSource.getLocation(cancellationToken)
+        triggerUpdate(result, "")
         val area = result?.let { locationRemoteDataSource.getArea(it) }
-        locationLocalDataSource.updateLocation(result, area.orEmpty())
+        triggerUpdate(result, area.orEmpty())
 
-        if (result != null) {
-            tileUpdateRequester.requestAllUpdates()
-            return true
-        } else {
-            return false
-        }
+        return result != null
     }
 
     private suspend fun locationIsFresh(): Boolean {
@@ -40,5 +37,10 @@ class LocationRepository(
         return locationData is StoredLocation.Valid && locationData.lastUpdated.let {
             Clock.System.now() < it + 10.minutes
         }
+    }
+
+    private suspend fun triggerUpdate(location: Location?, area: String) {
+        locationLocalDataSource.updateLocation(location, area)
+        location?.let { tileUpdateRequester.requestAllUpdates() }
     }
 }
