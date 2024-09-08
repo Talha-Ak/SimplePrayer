@@ -21,6 +21,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -72,8 +73,8 @@ dependencies {
     implementation(libs.protolayout)
     implementation(libs.protolayout.material)
     implementation(libs.protolayout.expression)
-    implementation(libs.tiles.renderer)
-    implementation(libs.tiles.testing)
+    debugImplementation(libs.tiles.renderer)
+    testImplementation(libs.tiles.testing)
     implementation(libs.tiles)
     implementation(libs.tiles.tooling.preview)
     implementation(libs.watchface.complications.data.source)
