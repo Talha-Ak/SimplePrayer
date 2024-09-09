@@ -89,6 +89,16 @@ class UserPreferencesRepository(
 
     suspend fun updateCalculationMethod(method: CalculationMethod) {
         dataStore.edit { preferences ->
+            if (method != userPrefsFlow.first().method) {
+                preferences.remove(CUSTOM_ANGLE_FAJR)
+                preferences.remove(CUSTOM_ANGLE_ISHA)
+                preferences.remove(FAJR_OFFSET)
+                preferences.remove(SUNRISE_OFFSET)
+                preferences.remove(DHUHR_OFFSET)
+                preferences.remove(ASR_OFFSET)
+                preferences.remove(MAGHRIB_OFFSET)
+                preferences.remove(ISHA_OFFSET)
+            }
             preferences[CALC_METHOD] = method.name
         }
         refreshTile()
