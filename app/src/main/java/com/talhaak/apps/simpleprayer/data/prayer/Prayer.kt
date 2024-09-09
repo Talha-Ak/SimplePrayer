@@ -10,6 +10,7 @@ import com.batoulapps.adhan2.PrayerTimes
 import com.batoulapps.adhan2.data.DateComponents
 import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.data.location.StoredLocation
+import com.talhaak.apps.simpleprayer.data.userprefs.UserPrayerAdjustments
 import com.talhaak.apps.simpleprayer.data.userprefs.UserPreferences
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
@@ -117,9 +118,21 @@ fun getPrayerTimes(
         prefs.method.parameters.copy(
             madhab = prefs.madhab,
             highLatitudeRule = prefs.highLatitudeRule,
-            fajrAngle = prefs.customAngles.first,
-            ishaAngle = prefs.customAngles.second,
-            methodAdjustments = prefs.prayerAdjustments
+            fajrAngle = prefs.customAngles.first ?: prefs.method.parameters.fajrAngle,
+            ishaAngle = prefs.customAngles.second ?: prefs.method.parameters.ishaAngle,
+            methodAdjustments = PrayerAdjustments(
+                fajr = prefs.prayerAdjustments.fajr
+                    ?: prefs.method.parameters.methodAdjustments.fajr,
+                sunrise = prefs.prayerAdjustments.sunrise
+                    ?: prefs.method.parameters.methodAdjustments.sunrise,
+                dhuhr = prefs.prayerAdjustments.dhuhr
+                    ?: prefs.method.parameters.methodAdjustments.dhuhr,
+                asr = prefs.prayerAdjustments.asr ?: prefs.method.parameters.methodAdjustments.asr,
+                maghrib = prefs.prayerAdjustments.maghrib
+                    ?: prefs.method.parameters.methodAdjustments.maghrib,
+                isha = prefs.prayerAdjustments.isha
+                    ?: prefs.method.parameters.methodAdjustments.isha
+            )
         )
     )
 }
@@ -155,6 +168,16 @@ fun PrayerTimes.toPrayerDay(): PrayerDay = PrayerDay(
 )
 
 operator fun PrayerAdjustments.get(prayer: Prayer): Int = when (prayer) {
+    Prayer.NONE -> throw IllegalStateException()
+    Prayer.FAJR -> fajr
+    Prayer.SUNRISE -> sunrise
+    Prayer.DHUHR -> dhuhr
+    Prayer.ASR -> asr
+    Prayer.MAGHRIB -> maghrib
+    Prayer.ISHA -> isha
+}
+
+operator fun UserPrayerAdjustments.get(prayer: Prayer): Int? = when (prayer) {
     Prayer.NONE -> throw IllegalStateException()
     Prayer.FAJR -> fajr
     Prayer.SUNRISE -> sunrise

@@ -22,6 +22,7 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.itemPad
 import com.google.android.horologist.compose.material.Title
 import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.data.prayer.getLabelFor
+import com.talhaak.apps.simpleprayer.data.userprefs.UserPrayerAdjustments
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 
 @Composable
@@ -85,7 +86,14 @@ fun SettingsMadhabScreen(
 fun SettingsMadhabScreenPreview() {
     SimplePrayerTheme {
         SettingsMadhabScreen(
-            state = SettingsState.Success(Madhab.HANAFI, CalculationMethod.MOON_SIGHTING_COMMITTEE),
+            state = SettingsState.Success(
+                method = CalculationMethod.MOON_SIGHTING_COMMITTEE,
+                madhab = Madhab.HANAFI,
+                customAngles = 18.0 to 17.0,
+                prayerAdjustments = UserPrayerAdjustments(
+                    null, null, null, null, null, null
+                )
+            ),
             columnState = rememberColumnState(),
             updateMadhab = {}
         )

@@ -80,8 +80,13 @@
     <string name="prayer_in">%1$s in</string>
     <string name="tile_prayer_list_label">Prayer List</string>
     <string name="complication_next_prayer_label">Next prayer</string>
-    <string name="prayer_colon_time">%1$s: %2$s</string>
+    <string name="prayer_colon_time" translatable="false">%1$s: %2$s</string>
     <string name="now_prayer">Now: %1$s</string>
     <string name="update">Update</string>
     <string name="open_app_to_update">Open app to update</string>
+    <string name="setting_custom">Custom: %1$s</string>
+    <plurals name="adjustment_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
 </resources>

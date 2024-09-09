@@ -15,7 +15,6 @@ import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
-import com.batoulapps.adhan2.PrayerAdjustments
 import com.talhaak.apps.simpleprayer.data.RemoteSurfaceUpdater
 import com.talhaak.apps.simpleprayer.data.prayer.get
 import kotlinx.coroutines.flow.Flow
@@ -65,19 +64,18 @@ class UserPreferencesRepository(
             HighLatitudeRule.valueOf(it)
         }
         val customAngles = Pair(
-            preferences[CUSTOM_ANGLE_FAJR] ?: method.parameters.fajrAngle,
-            preferences[CUSTOM_ANGLE_ISHA] ?: method.parameters.ishaAngle
+            preferences[CUSTOM_ANGLE_FAJR],
+            preferences[CUSTOM_ANGLE_ISHA]
         )
-        val prayerAdjustments = with(method.parameters.methodAdjustments) {
-            PrayerAdjustments(
-                fajr = preferences[FAJR_OFFSET] ?: fajr,
-                sunrise = preferences[SUNRISE_OFFSET] ?: sunrise,
-                dhuhr = preferences[DHUHR_OFFSET] ?: dhuhr,
-                asr = preferences[ASR_OFFSET] ?: asr,
-                maghrib = preferences[MAGHRIB_OFFSET] ?: maghrib,
-                isha = preferences[ISHA_OFFSET] ?: isha
-            )
-        }
+
+        val prayerAdjustments = UserPrayerAdjustments(
+            fajr = preferences[FAJR_OFFSET],
+            sunrise = preferences[SUNRISE_OFFSET],
+            dhuhr = preferences[DHUHR_OFFSET],
+            asr = preferences[ASR_OFFSET],
+            maghrib = preferences[MAGHRIB_OFFSET],
+            isha = preferences[ISHA_OFFSET]
+        )
 
         UserPreferences(madhab, method, highLatitudeRule, customAngles, prayerAdjustments)
     }
@@ -136,7 +134,7 @@ class UserPreferencesRepository(
                 Prayer.ISHA -> ISHA_OFFSET
             }
 
-            if (offset == userPrefsFlow.first().method.parameters.prayerAdjustments[prayer]) {
+            if (offset == userPrefsFlow.first().method.parameters.methodAdjustments[prayer]) {
                 preferences.remove(key)
             } else {
                 preferences[key] = offset

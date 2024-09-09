@@ -2,6 +2,7 @@ package com.talhaak.apps.simpleprayer.presentation.ui.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,6 +25,7 @@ import com.talhaak.apps.simpleprayer.data.prayer.allPrayers
 import com.talhaak.apps.simpleprayer.data.prayer.get
 import com.talhaak.apps.simpleprayer.data.prayer.getLabelFor
 import com.talhaak.apps.simpleprayer.data.prayer.getOffsetLabelFor
+import com.talhaak.apps.simpleprayer.data.userprefs.UserPrayerAdjustments
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 
 @Composable
@@ -117,7 +119,15 @@ fun SettingsMainScreen(
                 SettingsChip(
                     label = stringResource(R.string.custom_angles),
                     secondaryLabel = if (state is SettingsState.Success) {
-                        state.customAngles.toString()
+                        val info = stringResource(
+                            R.string.fajr_isha_angles,
+                            state.customAngles.first ?: state.method.parameters.fajrAngle,
+                            state.customAngles.second ?: state.method.parameters.ishaAngle
+                        )
+
+                        if (state.customAngles.first != null || state.customAngles.second != null) {
+                            stringResource(R.string.setting_custom, info)
+                        } else info
                     } else null,
                     onClick = navigateToCustomAnglesSettings
                 )
@@ -125,9 +135,17 @@ fun SettingsMainScreen(
             items(allPrayers()) { prayer ->
                 SettingsChip(
                     label = stringResource(getOffsetLabelFor(prayer)),
-                    //TODO convert to resource
                     secondaryLabel = if (state is SettingsState.Success) {
-                        state.prayerAdjustments[prayer].toString() + " minutes"
+                        val info = pluralStringResource(
+                            R.plurals.adjustment_minutes,
+                            state.prayerAdjustments[prayer]
+                                ?: state.method.parameters.methodAdjustments[prayer],
+                            state.prayerAdjustments[prayer]
+                                ?: state.method.parameters.methodAdjustments[prayer]
+                        )
+                        if (state.prayerAdjustments[prayer] != null) {
+                            stringResource(R.string.setting_custom, info)
+                        } else info
                     } else null,
                     onClick = { navigateToOffsetSettings(prayer) }
                 )
@@ -143,7 +161,9 @@ fun SettingsMainScreenSuccessPreview() {
         SettingsMainScreen(
             state = SettingsState.Success(
                 madhab = Madhab.HANAFI,
-                method = CalculationMethod.MOON_SIGHTING_COMMITTEE
+                method = CalculationMethod.MOON_SIGHTING_COMMITTEE,
+                customAngles = Pair(1.0, null),
+                prayerAdjustments = UserPrayerAdjustments(null, null, null, null, null, null)
             ),
             columnState = rememberColumnState(),
             navigateToMadhabSettings = {},

@@ -23,6 +23,7 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.itemPad
 import com.google.android.horologist.compose.material.Title
 import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.data.prayer.getLabelFor
+import com.talhaak.apps.simpleprayer.data.userprefs.UserPrayerAdjustments
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 
 @Composable
@@ -93,7 +94,14 @@ fun SettingsCalculationMethodScreen(
 fun SettingsCalculationMethodScreenPreview() {
     SimplePrayerTheme {
         SettingsCalculationMethodScreen(
-            state = SettingsState.Success(Madhab.SHAFI, CalculationMethod.MUSLIM_WORLD_LEAGUE),
+            state = SettingsState.Success(
+                madhab = Madhab.SHAFI,
+                method = CalculationMethod.MUSLIM_WORLD_LEAGUE,
+                customAngles = null to null,
+                prayerAdjustments = UserPrayerAdjustments(
+                    null, null, null, null, null, null
+                )
+            ),
             columnState = rememberColumnState(),
             updateMethod = {}
         )

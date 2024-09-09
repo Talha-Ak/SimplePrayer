@@ -47,6 +47,7 @@ import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.Madhab
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.talhaak.apps.simpleprayer.R
+import com.talhaak.apps.simpleprayer.data.userprefs.UserPrayerAdjustments
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 import kotlinx.coroutines.launch
 
@@ -83,6 +84,7 @@ fun SettingsCustomAnglesScreen(
             FajrIshaAnglePicker(
                 initialAngles = initialAngles,
                 methodAngles = methodAngles,
+                ishaBlocked = state.method == CalculationMethod.QATAR,
                 onConfirm = onConfirm
             )
         } else {
@@ -94,18 +96,22 @@ fun SettingsCustomAnglesScreen(
 @Composable
 fun FajrIshaAnglePicker(
     enabled: Boolean = true,
-    initialAngles: Pair<Double, Double> = 0.0 to 0.0,
+    initialAngles: Pair<Double?, Double?> = 0.0 to 0.0,
     methodAngles: Pair<Double, Double> = 0.0 to 0.0,
+    ishaBlocked: Boolean = false,
     onConfirm: (Double, Double) -> Unit = { _, _ -> },
 ) {
     val coroutineScope = rememberCoroutineScope()
     val fajrAngleState = rememberPickerState(
-        initialNumberOfOptions = (1 + (18.5 - 9.0) * 2).toInt(),
-        initiallySelectedOption = angleToIndex(initialAngles.first),
+        initialNumberOfOptions = (1 + (20.0 - 9.0) * 2).toInt(),
+        initiallySelectedOption = angleToIndex(initialAngles.first ?: methodAngles.first),
     )
     val ishaAngleState = rememberPickerState(
-        initialNumberOfOptions = (1 + (18.5 - 9.0) * 2).toInt(),
-        initiallySelectedOption = angleToIndex(initialAngles.second),
+        initialNumberOfOptions = if (ishaBlocked) 1 else (1 + (20.0 - 9.0) * 2).toInt(),
+        initiallySelectedOption = if (ishaBlocked) 0 else angleToIndex(
+            initialAngles.second ?: methodAngles.second
+        ),
+        repeatItems = !ishaBlocked
     )
     val pickerGroupState = rememberPickerGroupState(FocusableElementsPicker.FAJR.index)
 
@@ -121,7 +127,12 @@ fun FajrIshaAnglePicker(
     val focusRequesterConfirmButton = remember { FocusRequester() }
 
     val pickerWidth = getPickerWidth(textStyle)
-    val pickerOption = pickerTextOption(textStyle) { "%2.1f°".format(indexToAngle(it)) }
+    val pickerFajrOption = pickerTextOption(textStyle) { "%2.1f°".format(indexToAngle(it)) }
+    val pickerIshaOption = pickerTextOption(textStyle) {
+        "%2.1f°".format(
+            if (ishaBlocked) methodAngles.second else indexToAngle(it)
+        )
+    }
     val onPickerSelected =
         { current: FocusableElementsPicker, next: FocusableElementsPicker ->
             if (pickerGroupState.selectedIndex != current.index) {
@@ -146,7 +157,7 @@ fun FajrIshaAnglePicker(
                     FocusableElementsPicker.ISHA,
                 )
             },
-            option = pickerOption,
+            option = pickerFajrOption,
         ),
         PickerGroupItem(
             pickerState = ishaAngleState,
@@ -159,7 +170,7 @@ fun FajrIshaAnglePicker(
                     FocusableElementsPicker.RESET_BUTTON
                 )
             },
-            option = pickerOption,
+            option = pickerIshaOption,
         ),
     )
 
@@ -206,7 +217,9 @@ fun FajrIshaAnglePicker(
                 onClick = {
                     coroutineScope.launch {
                         fajrAngleState.scrollToOption(angleToIndex(methodAngles.first))
-                        ishaAngleState.scrollToOption(angleToIndex(methodAngles.second))
+                        ishaAngleState.scrollToOption(
+                            if (ishaBlocked) 0 else angleToIndex(methodAngles.second)
+                        )
                     }
                 },
                 colors = ButtonDefaults.secondaryButtonColors(),
@@ -234,7 +247,7 @@ fun FajrIshaAnglePicker(
                 onClick = {
                     onConfirm(
                         indexToAngle(fajrAngleState.selectedOption),
-                        indexToAngle(ishaAngleState.selectedOption)
+                        if (ishaBlocked) methodAngles.second else indexToAngle(ishaAngleState.selectedOption)
                     )
                 },
                 colors = ButtonDefaults.primaryButtonColors(),
@@ -295,7 +308,10 @@ fun SettingsCustomAnglesScreenPreview() {
             state = SettingsState.Success(
                 method = CalculationMethod.MOON_SIGHTING_COMMITTEE,
                 madhab = Madhab.HANAFI,
-                customAngles = 18.0 to 17.0
+                customAngles = 18.0 to 17.0,
+                prayerAdjustments = UserPrayerAdjustments(
+                    null, null, null, null, null, null
+                )
             )
         ) { _, _ -> }
     }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -35,7 +36,9 @@ import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.talhaak.apps.simpleprayer.R
 import com.talhaak.apps.simpleprayer.data.prayer.get
 import com.talhaak.apps.simpleprayer.data.prayer.getOffsetLabelFor
+import com.talhaak.apps.simpleprayer.data.userprefs.UserPrayerAdjustments
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsOffsetScreen(
@@ -65,11 +68,14 @@ fun SettingsOffsetScreen(
         modifier = Modifier.fillMaxSize(),
         timeText = {}
     ) {
-        val offset = if (state is SettingsState.Success) state.prayerAdjustments[prayer] else 0
+        val offset =
+            if (state is SettingsState.Success) state.prayerAdjustments[prayer]
+            else 0
         OffsetPicker(
             enabled = state is SettingsState.Success,
             prayer = prayer,
             initialOffset = offset,
+            methodOffset = if (state is SettingsState.Success) state.method.parameters.methodAdjustments[prayer] else 0,
             onConfirm = onConfirm
         )
     }
@@ -79,12 +85,15 @@ fun SettingsOffsetScreen(
 fun OffsetPicker(
     enabled: Boolean,
     prayer: Prayer,
-    initialOffset: Int,
+    initialOffset: Int?,
+    methodOffset: Int,
     onConfirm: (Int) -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     val offsetState = rememberPickerState(
         initialNumberOfOptions = 60 * 2 + 1,
-        initiallySelectedOption = 60 + initialOffset
+        initiallySelectedOption = 60 + (initialOffset ?: methodOffset)
     )
 
     val isLargeScreen = LocalConfiguration.current.screenWidthDp >= 225
@@ -133,7 +142,11 @@ fun OffsetPicker(
         ) {
             Button(
                 enabled = enabled,
-                onClick = {},
+                onClick = {
+                    coroutineScope.launch {
+                        offsetState.scrollToOption(methodOffset - 61)
+                    }
+                },
                 colors = ButtonDefaults.secondaryButtonColors(),
                 modifier = Modifier
             ) {
@@ -165,6 +178,10 @@ fun SettingsOffsetScreenPreview() {
             state = SettingsState.Success(
                 method = CalculationMethod.MOON_SIGHTING_COMMITTEE,
                 madhab = Madhab.HANAFI,
+                customAngles = 18.0 to 17.0,
+                prayerAdjustments = UserPrayerAdjustments(
+                    null, null, null, null, null, null
+                )
             ),
             prayer = Prayer.MAGHRIB,
             onConfirm = {}

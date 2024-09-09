@@ -10,8 +10,8 @@ import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
-import com.batoulapps.adhan2.PrayerAdjustments
 import com.talhaak.apps.simpleprayer.MyApplication
+import com.talhaak.apps.simpleprayer.data.userprefs.UserPrayerAdjustments
 import com.talhaak.apps.simpleprayer.data.userprefs.UserPreferencesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -85,7 +85,7 @@ sealed interface SettingsState {
         val madhab: Madhab,
         val method: CalculationMethod,
         val highLatitudeRule: HighLatitudeRule? = null,
-        val customAngles: Pair<Double, Double> = method.parameters.fajrAngle to method.parameters.ishaAngle,
-        val prayerAdjustments: PrayerAdjustments = method.parameters.prayerAdjustments
+        val customAngles: Pair<Double?, Double?>,
+        val prayerAdjustments: UserPrayerAdjustments
     ) : SettingsState
 }
