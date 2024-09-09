@@ -11,14 +11,13 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.wear.tiles.TileUpdateRequester
 import com.batoulapps.adhan2.CalculationMethod
 import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.Prayer
 import com.batoulapps.adhan2.PrayerAdjustments
+import com.talhaak.apps.simpleprayer.data.RemoteSurfaceUpdater
 import com.talhaak.apps.simpleprayer.data.prayer.get
-import com.talhaak.apps.simpleprayer.tiles.requestAllUpdates
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -32,7 +31,7 @@ val Context.userPrefsDatastore by preferencesDataStore(
 
 class UserPreferencesRepository(
     private val dataStore: DataStore<Preferences>,
-    private val tileUpdateRequester: TileUpdateRequester
+    private val remoteSurfaceUpdater: RemoteSurfaceUpdater
 ) {
     companion object {
         val IS_HANAFI = booleanPreferencesKey("is_hanafi")
@@ -147,6 +146,6 @@ class UserPreferencesRepository(
     }
 
     private fun refreshTile() {
-        tileUpdateRequester.requestAllUpdates()
+        remoteSurfaceUpdater.updateRemoteSurfaces()
     }
 }

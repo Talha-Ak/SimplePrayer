@@ -2,8 +2,8 @@ package com.talhaak.apps.simpleprayer
 
 import android.app.Application
 import android.location.Geocoder
-import androidx.wear.tiles.TileService
 import com.google.android.gms.location.LocationServices
+import com.talhaak.apps.simpleprayer.data.RemoteSurfaceUpdater
 import com.talhaak.apps.simpleprayer.data.location.LocationLocalDataSource
 import com.talhaak.apps.simpleprayer.data.location.LocationRemoteDataSource
 import com.talhaak.apps.simpleprayer.data.location.LocationRepository
@@ -22,12 +22,13 @@ class MyApplication : Application() {
         val geocoder = if (Geocoder.isPresent()) Geocoder(this) else null
         val remoteDataSource = LocationRemoteDataSource(locationClient, geocoder)
         val localDataSource = LocationLocalDataSource(locationDatastore)
-        val tileUpdateRequester = TileService.getUpdater(this)
+
+        val remoteSurfaceUpdater = RemoteSurfaceUpdater(this)
 
         locationRepository =
-            LocationRepository(localDataSource, remoteDataSource, tileUpdateRequester)
+            LocationRepository(localDataSource, remoteDataSource, remoteSurfaceUpdater)
         userPreferencesRepository =
-            UserPreferencesRepository(userPrefsDatastore, tileUpdateRequester)
+            UserPreferencesRepository(userPrefsDatastore, remoteSurfaceUpdater)
 
     }
 }

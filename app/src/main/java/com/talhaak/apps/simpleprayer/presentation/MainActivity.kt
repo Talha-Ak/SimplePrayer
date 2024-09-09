@@ -6,10 +6,24 @@
 
 package com.talhaak.apps.simpleprayer.presentation
 
+import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+
+// "Must" use FLAG_ACTIVITY_NEW_TASK flag
+// https://developer.android.com/reference/android/app/PendingIntent#getActivity(android.content.Context,%20int,%20android.content.Intent,%20int)
+@SuppressLint("WearRecents")
+fun Context.openActivity(): PendingIntent {
+    val intent = Intent(this, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    }
+    return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

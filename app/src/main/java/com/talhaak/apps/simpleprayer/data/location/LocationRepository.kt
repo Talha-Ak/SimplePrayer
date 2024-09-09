@@ -1,9 +1,8 @@
 package com.talhaak.apps.simpleprayer.data.location
 
 import android.location.Location
-import androidx.wear.tiles.TileUpdateRequester
 import com.google.android.gms.tasks.CancellationToken
-import com.talhaak.apps.simpleprayer.tiles.requestAllUpdates
+import com.talhaak.apps.simpleprayer.data.RemoteSurfaceUpdater
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.datetime.Clock
@@ -12,7 +11,7 @@ import kotlin.time.Duration.Companion.minutes
 class LocationRepository(
     private val locationLocalDataSource: LocationLocalDataSource,
     private val locationRemoteDataSource: LocationRemoteDataSource,
-    private val tileUpdateRequester: TileUpdateRequester
+    private val remoteSurfaceUpdater: RemoteSurfaceUpdater
 ) {
     val lastLocationFlow: Flow<StoredLocation> = locationLocalDataSource.locationFlow
 
@@ -41,6 +40,6 @@ class LocationRepository(
 
     private suspend fun triggerUpdate(location: Location?, area: String) {
         locationLocalDataSource.updateLocation(location, area)
-        location?.let { tileUpdateRequester.requestAllUpdates() }
+        location?.let { remoteSurfaceUpdater.updateRemoteSurfaces() }
     }
 }

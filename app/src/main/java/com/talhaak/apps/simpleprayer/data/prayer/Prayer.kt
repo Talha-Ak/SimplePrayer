@@ -29,6 +29,18 @@ fun Prayer.next(): Prayer {
     }
 }
 
+fun Prayer.prev(): Prayer {
+    return when (this) {
+        Prayer.NONE -> throw IllegalStateException()
+        Prayer.FAJR -> Prayer.ISHA
+        Prayer.SUNRISE -> Prayer.FAJR
+        Prayer.DHUHR -> Prayer.SUNRISE
+        Prayer.ASR -> Prayer.DHUHR
+        Prayer.MAGHRIB -> Prayer.ASR
+        Prayer.ISHA -> Prayer.MAGHRIB
+    }
+}
+
 fun allPrayers() = listOf(
     Prayer.FAJR,
     Prayer.SUNRISE,
@@ -46,6 +58,16 @@ fun getLabelFor(prayer: Prayer) = when (prayer) {
     Prayer.ASR -> R.string.asr
     Prayer.MAGHRIB -> R.string.maghrib
     Prayer.ISHA -> R.string.isha
+}
+
+fun getShortLabelFor(prayer: Prayer) = when (prayer) {
+    Prayer.NONE -> throw IllegalStateException()
+    Prayer.FAJR -> R.string.abbr_fajr
+    Prayer.SUNRISE -> R.string.abbr_sunrise
+    Prayer.DHUHR -> R.string.abbr_dhuhr
+    Prayer.ASR -> R.string.abbr_asr
+    Prayer.MAGHRIB -> R.string.abbr_maghrib
+    Prayer.ISHA -> R.string.abbr_isha
 }
 
 fun getLabelFor(madhab: Madhab) = when (madhab) {

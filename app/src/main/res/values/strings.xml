@@ -6,6 +6,12 @@
     <string name="asr">Asr</string>
     <string name="maghrib">Maghrib</string>
     <string name="isha">Isha</string>
+    <string name="abbr_fajr">FAJR</string>
+    <string name="abbr_sunrise">SUN</string>
+    <string name="abbr_dhuhr">DHR</string>
+    <string name="abbr_asr">ASR</string>
+    <string name="abbr_maghrib">MGRB</string>
+    <string name="abbr_isha">ISHA</string>
     <string name="cant_find_location">Couldn\'t get location. Ensure location services are enabled.</string>
     <string name="updating">Updating…</string>
     <string name="now">Now</string>
@@ -73,4 +79,9 @@
     <string name="prayer_in_leading_space">"%1$s in "</string>
     <string name="prayer_in">%1$s in</string>
     <string name="tile_prayer_list_label">Prayer List</string>
+    <string name="complication_next_prayer_label">Next prayer</string>
+    <string name="prayer_colon_time">%1$s: %2$s</string>
+    <string name="now_prayer">Now: %1$s</string>
+    <string name="update">Update</string>
+    <string name="open_app_to_update">Open app to update</string>
 </resources>
