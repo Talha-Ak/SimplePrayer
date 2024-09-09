@@ -53,7 +53,7 @@ private val DEFAULT_FRESHNESS_INTERVAL_MILLIS = 1.hours.inWholeMilliseconds
 
 class PrayerListTileRenderer(
     private val context: Context
-) : TileLayoutRenderer<PrayerListTileState, Unit> {
+) : TileLayoutRenderer<PrayerListTileState?, Unit> {
 
     override fun produceRequestedResources(
         resourceState: Unit, requestParams: RequestBuilders.ResourcesRequest
@@ -63,7 +63,7 @@ class PrayerListTileRenderer(
             .build()
 
     override fun renderTimeline(
-        state: PrayerListTileState, requestParams: RequestBuilders.TileRequest
+        state: PrayerListTileState?, requestParams: RequestBuilders.TileRequest
     ): TileBuilders.Tile {
         val timeline = Timeline.Builder()
         timeline.addTimelineEntry(
@@ -276,7 +276,7 @@ private fun nextPrayer(
         .setColor(argb(SimplePrayerTheme.tileColors.onSurface))
         .build()
 
-private fun calculateFreshnessIntervalMillis(state: PrayerListTileState): Long {
+private fun calculateFreshnessIntervalMillis(state: PrayerListTileState?): Long {
     if (state !is PrayerListTileState.Valid) return DEFAULT_FRESHNESS_INTERVAL_MILLIS
     // otherwise freshness is based on next day at midnight
     return Duration.between(Clock.System.now().toJavaInstant(), nextMidnight().toJavaInstant())

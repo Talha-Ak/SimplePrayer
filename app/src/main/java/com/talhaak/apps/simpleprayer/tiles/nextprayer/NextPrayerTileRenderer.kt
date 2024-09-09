@@ -50,7 +50,7 @@ private val DEFAULT_FRESHNESS_INTERVAL_MILLIS = 1.hours.inWholeMilliseconds
 
 class NextPrayerTileRenderer(
     private val context: Context
-) : TileLayoutRenderer<NextPrayerTileState, Unit> {
+) : TileLayoutRenderer<NextPrayerTileState?, Unit> {
 
     override fun produceRequestedResources(
         resourceState: Unit,
@@ -59,7 +59,7 @@ class NextPrayerTileRenderer(
         ResourceBuilders.Resources.Builder().setVersion(PERMANENT_RESOURCES_VERSION).build()
 
     override fun renderTimeline(
-        state: NextPrayerTileState,
+        state: NextPrayerTileState?,
         requestParams: RequestBuilders.TileRequest
     ): TileBuilders.Tile {
         val timeline = Timeline.Builder()
@@ -67,7 +67,7 @@ class NextPrayerTileRenderer(
             TimelineEntry.fromLayoutElement(getLocationMissingLayout(requestParams, context))
         )
 
-        state.prayers.forEach { prayer ->
+        state?.prayers?.forEach { prayer ->
             Log.d("NextPrayerTileRenderer", "renderTimeline: $prayer")
             timeline.addTimelineEntry(
                 TimelineEntry.Builder()
@@ -196,8 +196,8 @@ private fun mainLayout(
     )
 }
 
-private fun calculateFreshnessIntervalMillis(state: NextPrayerTileState): Long {
-    return state.prayers.lastOrNull()?.let {
+private fun calculateFreshnessIntervalMillis(state: NextPrayerTileState?): Long {
+    return state?.prayers?.lastOrNull()?.let {
         Duration.between(Instant.now(), it.dueAt.toJavaInstant()).toMillis()
     } ?: DEFAULT_FRESHNESS_INTERVAL_MILLIS
 }
