@@ -11,9 +11,12 @@ Support for multiple calculation methods, including overrides for custom adjustm
 Built on Kotlin, Jetpack Compose, as well as other components that (mostly) follow the recommended app architecture for Android applications.
 
 # Images
-> [!NOTE]
-> These are assets from the app that are likely to be changed
+
 <div float="left">
+    <img width="200px" src="images/main_screen.png">
+    <img width="200px" src="images/settings_screen.png">
+    <img width="200px" src="images/watch_face_1.png">
+    <img width="200px" src="images/watch_face_2.png">
     <img width="200px" src="app/src/main/res/drawable/tile_next_prayer_preview.webp">
     <img width="200px" src="app/src/main/res/drawable/tile_prayer_list_preview.webp">
 </div>
