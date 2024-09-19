@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -17,7 +17,6 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
@@ -36,13 +35,19 @@ fun PermissionRequestScreen(
     permissionType: String,
     navigateOut: () -> Unit
 ) {
-    var permissionAttempted by rememberSaveable { mutableStateOf(false) }
+    var permissionAttempted by remember { mutableStateOf(false) }
     val locationPermissionState = rememberPermissionState(permissionType) { success ->
-        if (!success) {
-            permissionAttempted = true
-        } else {
-            navigateOut()
-        }
+        if (success) navigateOut()
+        else permissionAttempted = true
+    }
+
+    // Runtime permissions are a joke
+    // Can only distinguish between first-run and "do not ask" by attempting permission
+    val showDialog = permissionAttempted && !locationPermissionState.status.shouldShowRationale
+
+    val icon = when (permissionType) {
+        Manifest.permission.ACCESS_COARSE_LOCATION -> R.drawable.baseline_location_on_24
+        else -> throw IllegalArgumentException("Unknown permission type")
     }
 
     val (title, message, rationale, chipLabel) = when (permissionType) {
@@ -56,46 +61,33 @@ fun PermissionRequestScreen(
         else -> throw IllegalArgumentException("Unknown permission type")
     }
 
-    val icon = when (permissionType) {
-        Manifest.permission.ACCESS_COARSE_LOCATION -> R.drawable.baseline_location_on_24
-        else -> throw IllegalArgumentException("Unknown permission type")
-    }
+    SettingsRedirectDialog(
+        icon = ImageVector.vectorResource(icon),
+        message = stringResource(rationale),
+        show = showDialog,
+        onDismiss = { permissionAttempted = false }
+    )
 
     PermissionRequestScreen(
-        permissionState = locationPermissionState,
-        permissionAttempted = permissionAttempted,
         titleId = title,
-        iconId = icon,
         messageId = message,
-        rationaleId = rationale,
-        chipLabelId = chipLabel
+        chipLabelId = chipLabel,
+        launchRequest = { locationPermissionState.launchPermissionRequest() }
     )
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PermissionRequestScreen(
-    permissionState: PermissionState?,
-    permissionAttempted: Boolean,
     titleId: Int,
-    iconId: Int,
     messageId: Int,
-    rationaleId: Int,
-    chipLabelId: Int
+    chipLabelId: Int,
+    launchRequest: () -> Unit
 ) {
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ScalingLazyColumnDefaults.ItemType.Text,
             last = ScalingLazyColumnDefaults.ItemType.Chip
         )
-    )
-    var show by rememberSaveable { mutableStateOf(false) }
-
-    SettingsRedirectDialog(
-        icon = ImageVector.vectorResource(iconId),
-        message = stringResource(rationaleId),
-        show = show,
-        onDismiss = { show = false }
     )
 
     ScreenScaffold(scrollState = columnState) {
@@ -112,33 +104,25 @@ fun PermissionRequestScreen(
                 )
             }
             item {
-                Chip(labelId = chipLabelId, modifier = Modifier.padding(top = 12.dp), onClick = {
-                    if (permissionState != null) {
-                        if (permissionAttempted && !permissionState.status.shouldShowRationale) {
-                            show = true
-                        } else {
-                            permissionState.launchPermissionRequest()
-                        }
-                    }
-                })
+                Chip(
+                    labelId = chipLabelId,
+                    modifier = Modifier.padding(top = 12.dp),
+                    onClick = launchRequest
+                )
             }
         }
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
 @WearPreviewDevices
 @Composable
 fun PermissionRequestScreenPreview() {
     SimplePrayerTheme {
         PermissionRequestScreen(
-            permissionState = null,
-            permissionAttempted = false,
             R.string.location,
-            R.drawable.baseline_location_on_24,
             R.string.location_request_message,
-            R.string.location_request_rationale,
-            R.string.location_request_allow_button
+            R.string.location_request_allow_button,
+            {}
         )
     }
 }
