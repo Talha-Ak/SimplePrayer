@@ -107,6 +107,12 @@ fun WearApp() {
                             },
                             navigateToOffsetSettings = { prayer ->
                                 navController.navigateToOffsetSettings(prayer)
+                            },
+                            navigateToBgPermissionRequest = {
+                                navController.navigateToPermissionRequest(
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                                    false
+                                )
                             }
                         )
                     }
