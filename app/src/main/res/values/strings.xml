@@ -85,6 +85,11 @@
     <string name="update">Update</string>
     <string name="open_app_to_update">Open app to update</string>
     <string name="setting_custom">Custom: %1$s</string>
+    <string name="background_location">Background Location</string>
+    <string name="background_location_request_message">To keep prayer times up-to-date, this app needs to collect location data in the background, even when the app is not in use. Location data always stays on your device.</string>
+    <string name="background_location_request_rationale">You need to grant location access \"all the time\" in settings to use this feature.</string>
+    <string name="accept">Accept</string>
+    <string name="background_location_setting_short_description">Keeps prayer times accurate when the app is closed</string>
     <plurals name="adjustment_minutes">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>

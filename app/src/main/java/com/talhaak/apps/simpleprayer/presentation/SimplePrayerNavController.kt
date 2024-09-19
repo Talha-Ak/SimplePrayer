@@ -7,13 +7,16 @@ import androidx.navigation.navArgument
 import com.batoulapps.adhan2.Prayer
 
 object SimplePrayerNavController {
-    fun NavController.navigateToPermissionRequest(permission: String) {
+    fun NavController.navigateToPermissionRequest(
+        permission: String,
+        popUpInclusive: Boolean = true
+    ) {
         val prevScreen = this.currentDestination?.route ?: this.graph.startDestinationRoute ?: ""
         navigate(
             NavigationScreens.PermissionRequest.destination(permission, prevScreen)
         ) {
             popUpTo(prevScreen) {
-                inclusive = true
+                inclusive = popUpInclusive
             }
         }
     }
@@ -79,10 +82,10 @@ sealed class NavigationScreens(val route: String) {
             )
     }
 
-    object Settings : NavigationScreens("settings") {
+    object Settings : NavigationScreens("settings_main") {
         fun destination(): String = route
 
-        object Main : NavigationScreens("settings/main") {
+        object Main : NavigationScreens("settings") {
             fun destination(): String = route
         }
 
