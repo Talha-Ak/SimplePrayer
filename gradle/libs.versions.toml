@@ -17,6 +17,7 @@ kotlinxCoroutinesPlayServices = "1.9.0-RC.2"
 protolayout = "1.2.0"
 tiles = "1.4.0"
 watchface = "1.2.1"
+workRuntimeKtx = "2.9.1"
 
 [libraries]
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
@@ -51,6 +52,7 @@ tiles-tooling = { group = "androidx.wear.tiles", name = "tiles-tooling", version
 tiles-tooling-preview = { group = "androidx.wear.tiles", name = "tiles-tooling-preview", version.ref = "tiles" }
 watchface-complications-data-source = { group = "androidx.wear.watchface", name = "watchface-complications-data-source", version.ref = "watchface" }
 watchface-complications-data-source-ktx = { group = "androidx.wear.watchface", name = "watchface-complications-data-source-ktx", version = "watchface" }
+work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
