@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.protolayout)
     implementation(libs.protolayout.material)
     implementation(libs.protolayout.expression)
+    implementation(libs.work.runtime.ktx)
     debugImplementation(libs.tiles.renderer)
     testImplementation(libs.tiles.testing)
     implementation(libs.tiles)
