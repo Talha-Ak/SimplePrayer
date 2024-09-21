@@ -1,10 +1,14 @@
 package com.talhaak.apps.simpleprayer.data.location
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager.PERMISSION_DENIED
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Build
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY
@@ -21,7 +25,8 @@ import kotlin.time.Duration.Companion.seconds
 
 class LocationRemoteDataSource(
     private val locationClient: FusedLocationProviderClient,
-    private val geocoder: Geocoder?
+    private val geocoder: Geocoder?,
+    private val appContext: Context
 ) {
     suspend fun getLocation(cancellationToken: CancellationToken): Location? {
         return getLocation(PRIORITY_BALANCED_POWER_ACCURACY, cancellationToken)
@@ -63,21 +68,27 @@ class LocationRemoteDataSource(
     private suspend fun getLocation(
         priority: Int,
         cancellationToken: CancellationToken
-    ): Location? =
-        withContext(Dispatchers.IO) {
+    ): Location? {
+        val permission = ContextCompat.checkSelfPermission(
+            appContext,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        if (permission == PERMISSION_DENIED) {
+            Log.w("LocationRemoteDataSource", "Tried to get location without permission")
+            return null
+        }
+
+        return withContext(Dispatchers.IO) {
             val locationRequest = CurrentLocationRequest.Builder()
                 .setMaxUpdateAgeMillis(10 * 60 * 1000)
                 .setDurationMillis(30 * 1000)
                 .setPriority(priority)
                 .build()
-            try {
-                val location = locationClient.getCurrentLocation(locationRequest, cancellationToken)
-                location.await()
-            } catch (e: SecurityException) {
-                Log.e("LocationRemoteDataSource", "Missing location permission", e)
-                null
-            }
+            val location = locationClient.getCurrentLocation(locationRequest, cancellationToken)
+            location.await()
         }
+    }
 
     private fun getAreaFromAddress(address: Address): String =
         address.subAdminArea ?: address.locality ?: address.adminArea ?: ""

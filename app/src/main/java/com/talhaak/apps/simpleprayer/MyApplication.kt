@@ -20,7 +20,7 @@ class MyApplication : Application() {
 
         val locationClient = LocationServices.getFusedLocationProviderClient(this)
         val geocoder = if (Geocoder.isPresent()) Geocoder(this) else null
-        val remoteDataSource = LocationRemoteDataSource(locationClient, geocoder)
+        val remoteDataSource = LocationRemoteDataSource(locationClient, geocoder, this)
         val localDataSource = LocationLocalDataSource(locationDatastore)
 
         val remoteSurfaceUpdater = RemoteSurfaceUpdater(this)
