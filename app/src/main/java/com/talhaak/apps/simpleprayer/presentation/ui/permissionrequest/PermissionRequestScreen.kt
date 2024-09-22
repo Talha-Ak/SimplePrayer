@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -29,6 +30,7 @@ import com.google.android.horologist.compose.layout.rememberResponsiveColumnStat
 import com.google.android.horologist.compose.material.Chip
 import com.google.android.horologist.compose.material.Title
 import com.talhaak.apps.simpleprayer.R
+import com.talhaak.apps.simpleprayer.data.location.scheduleBackgroundLocationUpdates
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -37,8 +39,18 @@ fun PermissionRequestScreen(
     permissionType: String,
     navigateOut: () -> Unit
 ) {
+    val context = LocalContext.current
+
     val icon = getIcon(permissionType)
     val (title, message, rationale, chipLabel) = getContents(permissionType)
+    val onCompletion = when (permissionType) {
+        Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
+            scheduleBackgroundLocationUpdates(context)
+            navigateOut
+        }
+
+        else -> navigateOut
+    }
 
     var permissionAttempted by remember { mutableStateOf(false) }
     val locationPermissionState = rememberPermissionState(permissionType) { success ->
@@ -46,7 +58,7 @@ fun PermissionRequestScreen(
     }
 
     LaunchedEffect(locationPermissionState.status.isGranted) {
-        if (locationPermissionState.status.isGranted) navigateOut()
+        if (locationPermissionState.status.isGranted) onCompletion()
     }
 
     // Runtime permissions are a joke
