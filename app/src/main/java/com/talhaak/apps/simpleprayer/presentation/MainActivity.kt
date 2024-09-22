@@ -14,6 +14,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.talhaak.apps.simpleprayer.data.location.scheduleBackgroundLocationUpdates
 
 // "Must" use FLAG_ACTIVITY_NEW_TASK flag
 // https://developer.android.com/reference/android/app/PendingIntent#getActivity(android.content.Context,%20int,%20android.content.Intent,%20int)
@@ -30,6 +31,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+
+        scheduleBackgroundLocationUpdates(this)
 
         setTheme(android.R.style.Theme_DeviceDefault)
 
