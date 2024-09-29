@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.ColorBuilders.argb
 import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.LayoutElementBuilders.Column
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
 import androidx.wear.protolayout.ModifiersBuilders
 import androidx.wear.protolayout.ResourceBuilders
@@ -71,7 +72,7 @@ class NextPrayerTileRenderer(
             Log.d("NextPrayerTileRenderer", "renderTimeline: $prayer")
             timeline.addTimelineEntry(
                 TimelineEntry.Builder()
-                    .setLayout(mainLayout(prayer, requestParams, context))
+                    .setLayout(mainLayout(prayer, state.loc, requestParams, context))
                     .setValidity(
                         TimeInterval.Builder()
                             .setEndMillis(prayer.dueAt.toEpochMilliseconds())
@@ -128,6 +129,7 @@ private fun getLocationMissingLayout(
 
 private fun mainLayout(
     state: NextPrayerTileEntry,
+    location: String,
     request: RequestBuilders.TileRequest,
     context: Context
 ): LayoutElementBuilders.Layout {
@@ -157,16 +159,26 @@ private fun mainLayout(
                     .build()
             )
             .setPrimaryLabelTextContent(
-                Text.Builder(
-                    context,
-                    context.getString(
-                        R.string.prayer_in,
-                        context.getString(getLabelFor(state.prayer))
+                Column.Builder().addContent(
+                    Text.Builder(
+                        context,
+                        context.getString(
+                            R.string.prayer_in,
+                            context.getString(getLabelFor(state.prayer))
+                        )
                     )
-                )
-                    .setTypography(Typography.TYPOGRAPHY_CAPTION1)
-                    .setColor(argb(Color.White.toArgb()))
-                    .build()
+                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                        .setColor(argb(Color.White.toArgb()))
+                        .build()
+                ).addContent(
+                    Text.Builder(
+                        context,
+                        location
+                    )
+                        .setTypography(Typography.TYPOGRAPHY_CAPTION3)
+                        .setColor(argb(Color.White.toArgb()))
+                        .build()
+                ).build()
             )
             .setContent(
                 Text.Builder(
@@ -213,7 +225,7 @@ private fun tilePreview(context: Context) = TilePreviewData(
                     Prayer.MAGHRIB,
                     Clock.System.now() - 1.hours,
                     Clock.System.now() + 3.hours
-                ), request, context
+                ), "London", request, context
             )
         ).build()
     }

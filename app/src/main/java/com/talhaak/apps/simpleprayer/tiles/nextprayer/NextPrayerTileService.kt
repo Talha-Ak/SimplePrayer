@@ -34,7 +34,10 @@ class NextPrayerTileService : SuspendingTileService() {
             userPreferencesRepository.userPrefsFlow,
         ) { location, prefs ->
             when (location) {
-                is StoredLocation.None, is StoredLocation.Invalid -> NextPrayerTileState(emptyList())
+                is StoredLocation.None, is StoredLocation.Invalid -> NextPrayerTileState(
+                    emptyList(),
+                    ""
+                )
                 is StoredLocation.Valid ->
                     getPrayerList(Clock.System.now(), location, prefs)
             }
@@ -59,7 +62,8 @@ fun getPrayerList(
     val tomorrow = getPrayerTimes(time + 1.days, location, prefs)
 
     return NextPrayerTileState(
-        listOf(
+        loc = location.area,
+        prayers = listOf(
             NextPrayerTileEntry(Prayer.FAJR, time, today.fajr),
             NextPrayerTileEntry(Prayer.SUNRISE, today.fajr, today.sunrise),
             NextPrayerTileEntry(Prayer.DHUHR, today.sunrise, today.dhuhr),
