@@ -73,6 +73,7 @@ import kotlin.time.Duration.Companion.seconds
 fun PrayerListScreen(
     prayerListViewModel: PrayerListScreenViewModel = viewModel(factory = PrayerListScreenViewModel.Factory),
     navigateToSettings: () -> Unit,
+    navigateToAbout: () -> Unit,
     navigateToLocationPermissionRequest: () -> Unit
 ) {
     val locationPermissionState =
@@ -97,6 +98,7 @@ fun PrayerListScreen(
         uiState = uiState,
         columnState = columnState,
         navigateToSettings = navigateToSettings,
+        navigateToAbout = navigateToAbout,
         onUpdate = prayerListViewModel::updateLocation
     )
 }
@@ -106,6 +108,7 @@ fun PrayerListScreen(
     uiState: PrayerListScreenState,
     columnState: ScalingLazyColumnState,
     navigateToSettings: () -> Unit,
+    navigateToAbout: () -> Unit,
     onUpdate: () -> Unit
 ) {
     ScreenScaffold(scrollState = columnState) {
@@ -120,6 +123,7 @@ fun PrayerListScreen(
                     uiState = uiState.state,
                     updating = true,
                     navigateToSettings = navigateToSettings,
+                    navigateToAbout = navigateToAbout,
                     onUpdate = onUpdate
                 )
             }
@@ -130,6 +134,7 @@ fun PrayerListScreen(
                     uiState = uiState.state,
                     updating = false,
                     navigateToSettings = navigateToSettings,
+                    navigateToAbout = navigateToAbout,
                     onUpdate = onUpdate
                 )
             }
@@ -186,6 +191,7 @@ private fun PrayerListMainScreen(
     uiState: PrayerListScreenState.ScreenState?,
     updating: Boolean,
     navigateToSettings: () -> Unit,
+    navigateToAbout: () -> Unit,
     onUpdate: () -> Unit
 ) {
     val updatingState = rememberPlaceholderState { !updating }
@@ -239,6 +245,9 @@ private fun PrayerListMainScreen(
 
         item {
             SettingsButton(navigateToSettings)
+        }
+        item {
+            AboutButton(navigateToAbout)
         }
     }
 
@@ -382,6 +391,16 @@ fun SettingsButton(navigateToSettings: () -> Unit) {
     )
 }
 
+@Composable
+fun AboutButton(navigateToAbout: () -> Unit) {
+    Chip(
+        labelId = R.string.about,
+        icon = ImageVector.vectorResource(R.drawable.baseline_info_24).asPaintable(),
+        colors = ChipDefaults.secondaryChipColors(),
+        onClick = navigateToAbout
+    )
+}
+
 @WearPreviewDevices
 @Composable
 fun PrayerListScreenPreview() {
@@ -403,6 +422,7 @@ fun PrayerListScreenPreview() {
             ),
             updating = false,
             navigateToSettings = {},
+            navigateToAbout = {},
             onUpdate = {}
         )
     }
@@ -413,7 +433,7 @@ fun PrayerListScreenPreview() {
 fun PrayerUpdatingLocationScreenPreview() {
     SimplePrayerTheme {
         PrayerListMainScreen(
-            columnState = rememberColumnState(), null, true, {}, {}
+            columnState = rememberColumnState(), null, true, {}, {}, {}
         )
     }
 }

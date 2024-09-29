@@ -38,6 +38,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -74,6 +75,7 @@ dependencies {
     implementation(libs.protolayout.material)
     implementation(libs.protolayout.expression)
     implementation(libs.work.runtime.ktx)
+    implementation(libs.wear.remote.interactions)
     debugImplementation(libs.tiles.renderer)
     testImplementation(libs.tiles.testing)
     implementation(libs.tiles)

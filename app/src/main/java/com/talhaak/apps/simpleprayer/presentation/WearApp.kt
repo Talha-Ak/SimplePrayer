@@ -17,6 +17,7 @@ import com.batoulapps.adhan2.Prayer
 import com.google.android.horologist.compose.layout.AppScaffold
 import com.google.android.horologist.compose.layout.ResponsiveTimeText
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateOutOfPermissionRequest
+import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToAbout
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToCustomAnglesSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToHighLatitudeSettings
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToMadhabSettings
@@ -25,6 +26,7 @@ import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navi
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToPermissionRequest
 import com.talhaak.apps.simpleprayer.presentation.SimplePrayerNavController.navigateToSettings
 import com.talhaak.apps.simpleprayer.presentation.theme.SimplePrayerTheme
+import com.talhaak.apps.simpleprayer.presentation.ui.AboutScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.permissionrequest.PermissionRequestScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.prayerlist.PrayerListScreen
 import com.talhaak.apps.simpleprayer.presentation.ui.settings.SettingsCalculationMethodScreen
@@ -54,10 +56,17 @@ fun WearApp() {
                         navigateToSettings = {
                             navController.navigateToSettings()
                         },
+                        navigateToAbout = {
+                            navController.navigateToAbout()
+                        },
                         navigateToLocationPermissionRequest = {
                             navController.navigateToPermissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION)
                         }
                     )
+                }
+
+                composable(NavigationScreens.About.route) {
+                    AboutScreen()
                 }
 
                 composable(

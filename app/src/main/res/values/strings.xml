@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SimplePrayer</string>
+    <string name="app_name">Simple Prayer</string>
     <string name="fajr">Fajr</string>
     <string name="sunrise">Sunrise</string>
     <string name="dhuhr">Dhuhr</string>
@@ -90,6 +90,8 @@
     <string name="background_location_request_rationale">You need to grant location access \"all the time\" in settings to use this feature.</string>
     <string name="accept">Accept</string>
     <string name="background_location_setting_short_description">Keeps prayer times accurate when the app is closed</string>
+    <string name="about">About</string>
+    <string name="version">Version %1$s</string>
     <plurals name="adjustment_minutes">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>

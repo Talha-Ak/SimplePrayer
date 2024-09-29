@@ -29,6 +29,10 @@ object SimplePrayerNavController {
         }
     }
 
+    fun NavController.navigateToAbout() {
+        navigate(NavigationScreens.About.destination())
+    }
+
     fun NavController.navigateToSettings() {
         navigate(NavigationScreens.Settings.destination())
     }
@@ -58,6 +62,10 @@ sealed class NavigationScreens(val route: String) {
     open val arguments: List<NamedNavArgument> = emptyList()
 
     object PrayerList : NavigationScreens("prayerList") {
+        fun destination(): String = route
+    }
+
+    object About : NavigationScreens("about") {
         fun destination(): String = route
     }
 
