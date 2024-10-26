@@ -21,6 +21,11 @@ Built on Kotlin, Jetpack Compose, as well as other components that (mostly) foll
     <img width="200px" src="app/src/main/res/drawable/tile_prayer_list_preview.webp">
 </div>
 
+# Install
+
+The app is available under Google Play closed testing.
+[Join the Google Group](https://groups.google.com/g/simple-prayer-testing) to get access to the Play Store link.
+
 # Getting Started
 
 Build the project via `./gradlew build`, or directly import the project into Android Studio.
